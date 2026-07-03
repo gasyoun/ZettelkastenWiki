@@ -88,6 +88,7 @@ Full roadmap:
 | SamudraManthanam → [samskrtam.ru/corpus-faq](https://samskrtam.ru/corpus-faq/) | same hosting | ✅ **live** — 6 RU notes; second FTP site on the shared deploy path |
 | [SanskritLexicography](https://github.com/gasyoun/SanskritLexicography) research site | consolidation | ✅ **merged** ([PR #107](https://github.com/gasyoun/SanskritLexicography/pull/107)) — 10 scattered convention docs → one site, **zero per-file edits** (v0.2.0 defaults layer) |
 | [MWS](https://github.com/sanskrit-lexicon/MWS) | docs-per-repo probe | ✅ **probed** → drove the v0.2.0 defaults layer; no upstream PR (org batched-PR cadence) |
+| Uprava (private) | AI-memory site | ✅ **v0.3.0 pilot** — 124-note searchable memory (root docs + handoffs + archive) from the live repo via multi-root ingest + full-text body search; built locally, never published |
 
 ## Use cases
 
@@ -109,11 +110,14 @@ Full roadmap:
 
 Waves 1–3 (extract → migrate ORS-FAQ → pilot four consumers) are done; the
 defaults layer (v0.2.0) proved arbitrary docs-per-repo publishing with zero
-edits. The next direction is **AI-memory sites for commit-heavy repos**:
+edits. **Wave 5 shipped (v0.3.0):** multi-root in-place ingest, full-text body
+search, single-`<h1>` enforcement, and `run_all(seo=False)` for internal
+sites — first proven on a private 124-note Uprava memory site. Building blocks
+for **AI-memory sites for commit-heavy repos**:
 
-- **Multi-root ingest** — one site from *several* source dirs of an existing
-  repo (`handoffs/`, `docs/`, root `*.md`) without copying files into a
-  `wiki/`, so the published memory tracks the repo as it grows.
+- ✅ **Multi-root ingest** (v0.3.0) — one site from *several* source dirs
+  (`handoffs/`, `docs/`, root `*.md`) with no copying, via
+  `GroupSpec.source_dir`/`recursive`/`pattern`/`exclude`.
 - **Recency & provenance** — surface each note's last-commit date and author
   from `git log` (sort "what changed lately" first); an agent asking "what's
   the current state?" lands on the freshest decisions.
@@ -122,8 +126,8 @@ edits. The next direction is **AI-memory sites for commit-heavy repos**:
 - **Backlinks & a memory index** — per-note "referenced by" plus a generated
   home that groups by status (in-work / decided / archived), mirroring the
   GTD/handoff-registry pattern.
-- **Full-text search over bodies** (today's index is title/alias-scoped) — an
-  agent's "have we hit this before?" query needs the body, not just titles.
+- ✅ **Full-text body search** (v0.3.0) — `full_text_search` indexes cleaned
+  bodies (hyphen/slash-preserving) so "have we hit this before?" matches content.
 - **CI freshness gate** — a reusable action that rebuilds the memory site on
   every push so it never drifts from the repo (the staleness-guard pattern the
   pilots already use, packaged).
