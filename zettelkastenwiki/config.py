@@ -78,6 +78,15 @@ class Hooks:
     #: Rendered between the note body and the CTA (quizzes, testimonials,
     #: "next course" blocks — the ORS plugins live behind this hook).
     note_extras: Callable[..., str] | None = None
+    #: Transform the rendered note body HTML (e.g. inject a badge after <h1>).
+    note_body_filter: Callable[..., str] | None = None
+    #: Return a full nav HTML for this note, or None for the default logic.
+    nav_override: Callable[..., "str | None"] | None = None
+    #: Per-page extra footer fragment (lang-aware); joined with " · ".
+    footer_extra: Callable[..., str] | None = None
+    #: Override the home page's primary JSON-LD block (None → default
+    #: CollectionPage).
+    home_main_jsonld: Callable[..., "dict | None"] | None = None
     #: Full home-page body override (hero, trust bar, …). None → default
     #: sectioned home built from the group specs.
     home_body: Callable[..., str] | None = None
@@ -116,6 +125,9 @@ class SiteConfig:
     author: str = ""
     org_same_as: tuple[str, ...] = ()
     strings: Strings = field(default_factory=Strings)
+    #: Per-language string tables (page lang → Strings); falls back to
+    #: ``strings`` for languages not listed.
+    strings_by_lang: dict = field(default_factory=dict)
     hooks: Hooks = field(default_factory=Hooks)
     #: rel_path → slug (pin URLs independent of filenames).
     slug_overrides: dict = field(default_factory=dict)
@@ -125,8 +137,24 @@ class SiteConfig:
     seo_title_suffix: str = ""
     default_cta_primary: "tuple[str, str] | None" = None
     default_cta_secondary: "tuple[str, str] | None" = None
-    #: ISO "YYYY-MM-DD" → display string (a RU theme supplies its own).
-    format_date: Callable[[str], str] = _iso_date
+    #: ISO "YYYY-MM-DD" → display string (a RU theme supplies its own). May
+    #: optionally accept a second ``lang`` argument for per-language formats.
+    format_date: Callable = _iso_date
+    #: Full stylesheet override; None → the packaged BASE_CSS. Themes that
+    #: need exact CSS control (parity migrations) set this.
+    css: "str | None" = None
+    #: Home-page meta overrides ("" → derived defaults).
+    home_title: str = ""
+    home_description: str = ""
+    home_og_image: str = ""
+    #: Custom .htaccess body (None → the packaged default when emit_htaccess).
+    htaccess_content: "str | None" = None
+    #: Extra search terms per note, appended to the search record.
+    extra_search_terms: "Callable | None" = None
+    #: OG card options: group → card label (fallback nav_label), plus
+    #: "footer" and "home_label" keys for the og module.
+    og_group_labels: dict = field(default_factory=dict)
+    og_options: dict = field(default_factory=dict)
     #: output subdir name → source directory, copied verbatim into the build.
     static_assets: dict = field(default_factory=dict)
     #: Emit an .htaccess disabling rewrites (WordPress-subfolder hosting).
@@ -148,3 +176,12 @@ class SiteConfig:
             if spec.name == name:
                 return spec
         return None
+
+    def strings_for(self, lang: str) -> Strings:
+        return self.strings_by_lang.get(lang, self.strings)
+
+    def display_date(self, value: str, lang: str) -> str:
+        try:
+            return self.format_date(value, lang)
+        except TypeError:
+            return self.format_date(value)

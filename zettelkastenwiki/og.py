@@ -144,11 +144,15 @@ def write_og_images(
     publish() wipes the output dir each build; unchanged cards are copied
     from the cache instead of re-rendered (Pillow rendering dominated build
     time on the 100+-page ORS site)."""
-    style = style or OgStyle(footer=config.site_name)
+    opts = config.og_options
+    if style is None:
+        style = OgStyle(footer=opts.get("footer", config.site_name))
     cache_root = Path(cache_dir) if cache_dir else Path(config.wiki_root).parent / ".og_cache"
 
     label_for = {spec.name: (spec.nav_label or spec.name) for spec in config.groups}
-    cards = [(output_dir / "og" / "index.png", config.site_name, config.site_name)]
+    label_for.update(config.og_group_labels)
+    home_label = opts.get("home_label", config.site_name)
+    cards = [(output_dir / "og" / "index.png", config.site_name, home_label)]
     for note in notes:
         if str(note.frontmatter.get("og_image", "")).strip():
             continue  # external override — nothing to generate

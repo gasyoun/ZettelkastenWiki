@@ -49,11 +49,11 @@ def publish(config: SiteConfig, output_dir: "str | Path", render_og: "bool | Non
     for note in notes:
         render_note(output_path, note, notes, config)
 
-    write_search_index(output_path, notes)
+    write_search_index(output_path, notes, config)
     write_sitemap(output_path, notes, config)
     write_robots(output_path, config)
     if config.emit_htaccess:
-        write_htaccess(output_path)
+        write_htaccess(output_path, config)
     return output_path
 
 
@@ -124,6 +124,9 @@ def render_home(output_dir: Path, notes: list, config: SiteConfig) -> None:
     extra_jsonld = []
     if config.hooks.home_extra_jsonld is not None:
         extra_jsonld = config.hooks.home_extra_jsonld(notes=notes, config=config) or []
+    main_jsonld = None
+    if config.hooks.home_main_jsonld is not None:
+        main_jsonld = config.hooks.home_main_jsonld(notes=notes, config=config)
     website_jsonld = {
         "@context": "https://schema.org",
         "@type": "WebSite",
@@ -142,16 +145,15 @@ def render_home(output_dir: Path, notes: list, config: SiteConfig) -> None:
 
     html_text = page_shell(
         config=config,
-        title=config.site_name,
-        description=markdown_excerpt(config.site_name, 155)
-        if not notes
-        else f"{config.site_name} — {len(notes)} pages",
+        title=config.home_title or config.site_name,
+        description=config.home_description or f"{config.site_name} — {len(notes)} pages",
         canonical_url=f"{config.base_url}/",
         body=body,
         nav=render_nav(notes, config),
-        og_image=f"{config.base_url}/og/index.png",
+        og_image=config.home_og_image or f"{config.base_url}/og/index.png",
         og_type="website",
-        json_ld={
+        json_ld=main_jsonld
+        or {
             "@context": "https://schema.org",
             "@type": "CollectionPage",
             "name": config.site_name,
@@ -168,16 +170,22 @@ def render_home(output_dir: Path, notes: list, config: SiteConfig) -> None:
 
 def render_note(output_dir: Path, note: Note, notes: list, config: SiteConfig) -> None:
     body = markdown_to_html(note.body, note, notes, config)
+    if config.hooks.note_body_filter is not None:
+        body = config.hooks.note_body_filter(body=body, note=note, notes=notes, config=config)
     extras = _run(config.hooks.note_extras, note=note, notes=notes, config=config)
     cta_html = render_cta(note, config)
     related_html = render_related(note, notes, config)
 
-    spec = config.group(note.group)
-    nav = (
-        _standalone_nav(note, notes, config)
-        if spec and spec.standalone_nav
-        else render_nav(notes, config)
-    )
+    nav = None
+    if config.hooks.nav_override is not None:
+        nav = config.hooks.nav_override(note=note, notes=notes, config=config)
+    if nav is None:
+        spec = config.group(note.group)
+        nav = (
+            _standalone_nav(note, notes, config)
+            if spec and spec.standalone_nav
+            else render_nav(notes, config)
+        )
 
     html_text = page_shell(
         config=config,
@@ -286,8 +294,16 @@ def render_nav(notes: list, config: SiteConfig) -> str:
 # --- machine outputs --------------------------------------------------------
 
 
-def write_search_index(output_dir: Path, notes: list) -> None:
-    records = [search_record(note) for note in notes if note.indexable]
+def write_search_index(output_dir: Path, notes: list, config: "SiteConfig | None" = None) -> None:
+    extra = config.extra_search_terms if config else None
+    records = []
+    for note in notes:
+        if not note.indexable:
+            continue
+        record = search_record(note)
+        if extra is not None:
+            record["terms"] = record["terms"] + [t for t in extra(note) if t]
+        records.append(record)
     # Minified: fetched by the client, not read by humans.
     write_text(
         output_dir / "search.json",
@@ -336,8 +352,9 @@ RewriteEngine Off
 """
 
 
-def write_htaccess(output_dir: Path) -> None:
-    write_text(output_dir / ".htaccess", _HTACCESS)
+def write_htaccess(output_dir: Path, config: "SiteConfig | None" = None) -> None:
+    content = config.htaccess_content if config and config.htaccess_content is not None else _HTACCESS
+    write_text(output_dir / ".htaccess", content)
 
 
 def write_text(path: Path, text: str) -> None:

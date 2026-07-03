@@ -394,7 +394,8 @@ def page_shell(
     og_type: str = "article",
     extra_jsonld: "list | None" = None,
 ) -> str:
-    strings = config.strings
+    page_lang = note.lang if note else config.language
+    strings = config.strings_for(page_lang)
     hooks: Hooks = config.hooks
 
     json_ld_text = json_ld_dumps(json_ld)
@@ -408,7 +409,6 @@ def page_shell(
         for block in (extra_jsonld or [])
     )
     page_class = f"page-{note.group}" if note else "page-home"
-    page_lang = note.lang if note else config.language
     safe_title = html.escape(title)
     safe_description = escape_attr(description)
     safe_canonical = escape_attr(canonical_url)
@@ -417,7 +417,7 @@ def page_shell(
 
     date_html = ""
     if last_updated:
-        date_str = html.escape(config.format_date(last_updated))
+        date_str = html.escape(config.display_date(last_updated, page_lang))
         date_html = (
             f'<div class="page-meta"><time datetime="{html.escape(last_updated)}">'
             f"{strings.updated_label}: {date_str}</time></div>"
@@ -452,6 +452,9 @@ def page_shell(
     ]
     if config.footer_extra_html:
         footer_bits.append(config.footer_extra_html)
+    footer_dynamic = _run(hooks.footer_extra, note=note, notes=None, config=config)
+    if footer_dynamic:
+        footer_bits.append(footer_dynamic)
     footer_html = " · ".join(footer_bits)
 
     return f"""<!DOCTYPE html>
@@ -476,7 +479,7 @@ def page_shell(
   <meta name="twitter:description" content="{safe_description}">
   <meta name="twitter:image" content="{safe_og_image}">{author_meta}
   <script type="application/ld+json">{json_ld_text}</script>{breadcrumb_script}{extra_scripts}{head_extra}
-  <style>{BASE_CSS}{css_extra}
+  <style>{config.css if config.css is not None else BASE_CSS}{css_extra}
   </style>
 </head>
 <body class="{page_class}">

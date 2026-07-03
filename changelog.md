@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.1] — 2026-07-03
+
+Parity-migration extension points (needed by the ORS-FAQ Wave-2 golden-diff
+migration; all additive, no behavior change for existing configs):
+
+- `SiteConfig.css` — full stylesheet override; `strings_by_lang` — per-language
+  string tables; lang-aware `format_date` (optional second arg);
+  `home_title`/`home_description`/`home_og_image`; `htaccess_content`;
+  `extra_search_terms`; `og_group_labels` + `og_options` (footer/home_label).
+- New hooks: `note_body_filter`, `nav_override`, `footer_extra`,
+  `home_main_jsonld`.
+
 ## [0.1.0] — 2026-07-03
 
 Initial extraction from the [ORS-FAQ](https://github.com/gasyoun/ORS-FAQ)
