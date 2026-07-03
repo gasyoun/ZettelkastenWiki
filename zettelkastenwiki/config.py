@@ -197,6 +197,13 @@ class SiteConfig:
     #: Render a "Referenced by" section on each note listing the notes that
     #: link to it (reverse of the wikilink graph) — navigable memory.
     backlinks: bool = False
+    #: Regexes whose bare-token matches in prose are auto-linked to the note
+    #: they name (e.g. ``(r"\bH\d{3}\b",)`` turns "H103" into a link to the
+    #: ``h103-…`` note). A token resolves to a note whose slug equals it,
+    #: starts with ``token-``, or whose filename stem starts with ``token_``;
+    #: unresolved tokens are left as plain text. Matches inside existing
+    #: links/code are never touched. Also feeds the backlink graph.
+    autolink_patterns: tuple = ()
     #: output subdir name → source directory, copied verbatim into the build.
     static_assets: dict = field(default_factory=dict)
     #: Emit an .htaccess disabling rewrites (WordPress-subfolder hosting).

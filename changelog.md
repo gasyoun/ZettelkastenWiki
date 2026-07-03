@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.0] — 2026-07-03
+
+**Bare-token auto-linking** (Wave-5 memory increment; opt-in, default off).
+
+- **`SiteConfig.autolink_patterns`** — regexes whose bare-token matches in
+  prose become links to the note they name (e.g. `(r"\bH\d{3}\b",)` turns
+  "H103" into a link to the `h103-…` handoff). A token resolves to a note
+  whose slug equals it, starts with `token-`, or whose filename stem starts
+  with `token_`; unresolved tokens stay plain. Tag-aware: never links inside
+  existing `<a>`/`<code>`. Auto-linked references also feed the backlink
+  graph. `markdown.autolink_target()` / `build_autolinker()` are public.
+- +5 tests (48 total).
+
+
 ## [0.4.0] — 2026-07-03
 
 **Git recency + backlinks** (Wave-5 memory increments; opt-in, default off).

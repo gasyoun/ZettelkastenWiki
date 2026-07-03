@@ -305,25 +305,37 @@ def _compute_backlinks(notes: list, config: SiteConfig) -> dict:
     wikilinks."""
     import re as _re
 
-    from .markdown import resolve_wiki_link
+    from .markdown import autolink_target, resolve_wiki_link
 
     by_rel = {n.rel_path: [] for n in notes}
     wikilink = _re.compile(r"\[\[([^]|\n]+)(?:\|[^]\n]+)?]]")
     mdlink = _re.compile(r"\]\(([^)\s]+\.md)(?:[#?][^)\s]*)?\)")
+    autolink_re = (
+        _re.compile("|".join(f"(?:{p})" for p in config.autolink_patterns))
+        if config.autolink_patterns
+        else None
+    )
     for src in notes:
-        targets = list(wikilink.findall(src.body))
-        # Markdown-link URLs → the trailing filename stem (handles ../x.md and
-        # https://…/handoffs/H103_….md alike).
-        for url in mdlink.findall(src.body):
-            stem = url.rsplit("/", 1)[-1][:-3]  # drop ".md"
-            targets.append(stem)
         seen = set()
-        for target in targets:
-            _url, resolved = resolve_wiki_link(target, src, notes, config)
+
+        def _add(resolved):
             if resolved is not None and resolved.rel_path != src.rel_path:
                 if resolved.rel_path not in seen:
                     seen.add(resolved.rel_path)
                     by_rel[resolved.rel_path].append(src)
+
+        for target in wikilink.findall(src.body):
+            _url, resolved = resolve_wiki_link(target, src, notes, config)
+            _add(resolved)
+        # Markdown-link URLs → the trailing filename stem (handles ../x.md and
+        # https://…/handoffs/H103_….md alike).
+        for url in mdlink.findall(src.body):
+            _url, resolved = resolve_wiki_link(url.rsplit("/", 1)[-1][:-3], src, notes, config)
+            _add(resolved)
+        # Bare autolink tokens (e.g. H103) in prose also count as references.
+        if autolink_re is not None:
+            for m in autolink_re.finditer(src.body):
+                _add(autolink_target(m.group(0), notes))
     return by_rel
 
 

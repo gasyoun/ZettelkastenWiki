@@ -25,10 +25,11 @@ def markdown_to_html(markdown: str, note: Note, notes: list, config: SiteConfig)
     quote: list[str] = []
     in_code = False
     code_lines: list[str] = []
+    autolink = build_autolinker(notes, config)
 
     def flush_paragraph() -> None:
         if paragraph:
-            blocks.append(f"<p>{render_inline(' '.join(paragraph), note, notes, config)}</p>")
+            blocks.append(f"<p>{render_inline(' '.join(paragraph), note, notes, config, autolink)}</p>")
             paragraph.clear()
 
     def flush_list() -> None:
@@ -72,25 +73,25 @@ def markdown_to_html(markdown: str, note: Note, notes: list, config: SiteConfig)
             flush_quote()
             level = len(heading.group(1))
             blocks.append(
-                f"<h{level}>{render_inline(heading.group(2), note, notes, config)}</h{level}>"
+                f"<h{level}>{render_inline(heading.group(2), note, notes, config, autolink)}</h{level}>"
             )
             continue
         if line.startswith(">"):
             flush_paragraph()
             flush_list()
-            quote.append(render_inline(line.lstrip("> ").strip(), note, notes, config))
+            quote.append(render_inline(line.lstrip("> ").strip(), note, notes, config, autolink))
             continue
         unordered = re.match(r"^\s*-\s+(.*)$", line)
         if unordered:
             flush_paragraph()
             flush_quote()
-            list_items.append(render_inline(unordered.group(1), note, notes, config))
+            list_items.append(render_inline(unordered.group(1), note, notes, config, autolink))
             continue
         ordered = re.match(r"^\s*\d+\.\s+(.*)$", line)
         if ordered:
             flush_paragraph()
             flush_quote()
-            ordered_items.append(render_inline(ordered.group(1), note, notes, config))
+            ordered_items.append(render_inline(ordered.group(1), note, notes, config, autolink))
             continue
         paragraph.append(line)
 
@@ -100,7 +101,7 @@ def markdown_to_html(markdown: str, note: Note, notes: list, config: SiteConfig)
     return "\n".join(blocks)
 
 
-def render_inline(text: str, note: Note, notes: list, config: SiteConfig) -> str:
+def render_inline(text: str, note: Note, notes: list, config: SiteConfig, autolink=None) -> str:
     escaped = html.escape(text)
 
     def wiki_link(match: "re.Match[str]") -> str:
@@ -124,6 +125,9 @@ def render_inline(text: str, note: Note, notes: list, config: SiteConfig) -> str
     )
     escaped = re.sub(r"`([^`]+)`", r"<code>\1</code>", escaped)
     escaped = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", escaped)
+    # Auto-link bare tokens (e.g. H103) last, skipping existing links/code.
+    if autolink is not None:
+        escaped = autolink(escaped)
     return escaped
 
 
@@ -152,3 +156,45 @@ def pretty_wiki_target(target: str) -> str:
     text = target.split("#", 1)[0].strip().removesuffix(".md")
     text = text.replace("\\", "/").rstrip("/").split("/")[-1]
     return text.replace("_", " ")
+
+
+def autolink_target(token: str, notes: list):
+    """Resolve a bare autolink token (e.g. ``H103``) to a Note: slug equals it,
+    starts with ``token-``, or filename stem starts with ``token_``. Returns
+    the Note or None."""
+    key = token.lower()
+    for note in notes:
+        if note.slug == key:
+            return note
+    for note in notes:
+        stem = Path(note.rel_path).stem.lower()
+        if note.slug.startswith(key + "-") or stem.startswith(key + "_") or stem == key:
+            return note
+    return None
+
+
+def build_autolinker(notes: list, config):
+    """Build a callable that auto-links bare tokens in a rendered-HTML string,
+    skipping text inside existing <a>/<code> spans. None if no patterns."""
+    if not config.autolink_patterns:
+        return None
+    combined = re.compile("|".join(f"(?:{p})" for p in config.autolink_patterns))
+    _skip = re.compile(r"(<a\b[^>]*>.*?</a>|<code\b[^>]*>.*?</code>|<[^>]+>)", re.DOTALL)
+    cache: dict = {}
+
+    def _link(m: "re.Match[str]") -> str:
+        token = m.group(0)
+        key = token.lower()
+        if key not in cache:
+            target = autolink_target(token, notes)
+            cache[key] = target.url_path if target else None
+        url = cache[key]
+        return f'<a href="{escape_attr(url)}">{token}</a>' if url else token
+
+    def apply(html_str: str) -> str:
+        return "".join(
+            part if part[:1] == "<" else combined.sub(_link, part)
+            for part in _skip.split(html_str)
+        )
+
+    return apply
