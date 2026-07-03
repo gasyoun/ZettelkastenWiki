@@ -88,7 +88,7 @@ Full roadmap:
 | SamudraManthanam → [samskrtam.ru/corpus-faq](https://samskrtam.ru/corpus-faq/) | same hosting | ✅ **live** — 6 RU notes; second FTP site on the shared deploy path |
 | [SanskritLexicography](https://github.com/gasyoun/SanskritLexicography) research site | consolidation | ✅ **merged** ([PR #107](https://github.com/gasyoun/SanskritLexicography/pull/107)) — 10 scattered convention docs → one site, **zero per-file edits** (v0.2.0 defaults layer) |
 | [MWS](https://github.com/sanskrit-lexicon/MWS) | docs-per-repo probe | ✅ **probed** → drove the v0.2.0 defaults layer; no upstream PR (org batched-PR cadence) |
-| Uprava (private) | AI-memory site | ✅ **v0.3.0 pilot** — 124-note searchable memory (root docs + handoffs + archive) from the live repo via multi-root ingest + full-text body search; built locally, never published |
+| Uprava (private) | AI-memory site | ✅ **v0.3.0 pilot** — 124-note searchable memory (root docs + handoffs + archive) from the live repo via multi-root ingest, full-text body search, git recency & backlinks (88 pages of "Referenced by"); built locally, never published |
 
 ## Use cases
 
@@ -118,14 +118,14 @@ for **AI-memory sites for commit-heavy repos**:
 - ✅ **Multi-root ingest** (v0.3.0) — one site from *several* source dirs
   (`handoffs/`, `docs/`, root `*.md`) with no copying, via
   `GroupSpec.source_dir`/`recursive`/`pattern`/`exclude`.
-- **Recency & provenance** — surface each note's last-commit date and author
-  from `git log` (sort "what changed lately" first); an agent asking "what's
-  the current state?" lands on the freshest decisions.
+- ✅ **Recency & provenance** (v0.4.0) — `git_recency` fills each note's
+  last-commit date/author; `GroupSpec.sort="recency"` orders newest-first and
+  the date becomes the page badge.
 - **Auto-linking** — resolve bare `H###` / issue / doc references into
   cross-links so the handoff graph becomes navigable, not just a file list.
-- **Backlinks & a memory index** — per-note "referenced by" plus a generated
-  home that groups by status (in-work / decided / archived), mirroring the
-  GTD/handoff-registry pattern.
+- ✅ **Backlinks** (v0.4.0) — `backlinks` renders a per-note "Referenced by"
+  from the reverse link graph (wikilinks + Markdown/URL `.md` links). *(A
+  status-grouped memory index home is a future increment.)*
 - ✅ **Full-text body search** (v0.3.0) — `full_text_search` indexes cleaned
   bodies (hyphen/slash-preserving) so "have we hit this before?" matches content.
 - **CI freshness gate** — a reusable action that rebuilds the memory site on
