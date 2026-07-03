@@ -204,6 +204,16 @@ class SiteConfig:
     #: unresolved tokens are left as plain text. Matches inside existing
     #: links/code are never touched. Also feeds the backlink graph.
     autolink_patterns: tuple = ()
+    #: Render the home page as a status-grouped memory index (sections per
+    #: bucket, newest-first, with counts) instead of the default sectioned
+    #: home. Ignored when a ``home_body`` hook is set.
+    status_home: bool = False
+    #: note → bucket-key classifier for ``status_home``. None → the note's
+    #: frontmatter ``status`` (first word, lowercased), else its group.
+    status_of: "Callable | None" = None
+    #: Ordered ``(key, label)`` pairs controlling section order + display
+    #: names; buckets not listed are appended under their key.
+    status_buckets: tuple = ()
     #: output subdir name → source directory, copied verbatim into the build.
     static_assets: dict = field(default_factory=dict)
     #: Emit an .htaccess disabling rewrites (WordPress-subfolder hosting).

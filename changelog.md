@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.6.0] — 2026-07-03
+
+**Status-grouped memory-index home** (Wave-5; opt-in, default off).
+
+- **`SiteConfig.status_home`** — render the home as a memory index: a counts
+  summary line + one section per status bucket, notes newest-first with
+  date + group badges (mirrors the GTD / handoff-registry pattern).
+- **`SiteConfig.status_of`** — a `note→bucket-key` classifier (accepts
+  `(note)` or `(note, config)`); default reads frontmatter `status` (first
+  word) else the note's group.
+- **`SiteConfig.status_buckets`** — ordered `(key, label)` pairs for section
+  order + display names; unlisted buckets append under their key.
+- +4 tests (52 total).
+
+
 ## [0.5.0] — 2026-07-03
 
 **Bare-token auto-linking** (Wave-5 memory increment; opt-in, default off).

@@ -235,6 +235,11 @@ BASE_CSS = """
     .related { margin-top: 32px; color: var(--muted); }
     .backlinks { margin-top: 28px; color: var(--muted); }
     .backlinks h2 { font-size: 0.95rem; }
+    .status-summary { color: var(--muted); font-size: 0.9rem; margin: -8px 0 24px; }
+    .mi-section { margin-bottom: 28px; }
+    .mi-list { list-style: none; margin: 0; padding: 0; }
+    .mi-list li { margin: 4px 0; }
+    .mi-meta { color: var(--muted); font-size: 0.8rem; margin-left: 6px; }
     .page-meta {
       text-align: right;
       font-size: 0.8rem;

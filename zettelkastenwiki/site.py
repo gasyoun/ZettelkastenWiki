@@ -115,13 +115,60 @@ def _home_sections(notes: list, config: SiteConfig) -> str:
     return "".join(sections)
 
 
+def _default_status(note: Note, config: SiteConfig) -> str:
+    """Fallback classifier: frontmatter ``status`` (first word) else group."""
+    raw = str(note.frontmatter.get("status", "")).strip()
+    return raw.split()[0].lower() if raw else note.group
+
+
+def _status_home(notes: list, config: SiteConfig) -> str:
+    """Home as a status-grouped memory index: a counts summary + one section
+    per bucket, notes newest-first with date + group badges."""
+    classify = config.status_of or _default_status
+    buckets: dict = {}
+    for note in notes:
+        try:
+            key = classify(note, config) or "other"
+        except TypeError:  # a classifier that takes only the note
+            key = classify(note) or "other"
+        buckets.setdefault(str(key), []).append(note)
+
+    labels = dict(config.status_buckets)
+    order = [k for k, _ in config.status_buckets if k in buckets]
+    order += sorted(k for k in buckets if k not in labels)
+
+    summary = " · ".join(f"{labels.get(k, k.title())}: {len(buckets[k])}" for k in order)
+    sections = [
+        f"<h1>{html.escape(config.site_name)}</h1>",
+        f'<p class="status-summary">{html.escape(summary)}</p>',
+    ]
+    for key in order:
+        items = sorted(buckets[key], key=lambda n: (n.git_date or "", n.title), reverse=True)
+        label = labels.get(key, key.title())
+        rows = []
+        for n in items:
+            meta = " · ".join(x for x in (n.git_date, n.group) if x)
+            meta_html = f' <span class="mi-meta">{html.escape(meta)}</span>' if meta else ""
+            rows.append(f'<li><a href="{n.url_path}">{html.escape(n.title)}</a>{meta_html}</li>')
+        sec_id = html.escape(key.lower().replace(" ", "-"))
+        sections.append(
+            f'<section class="mi-section" id="{sec_id}">'
+            f"<h2>{html.escape(label)} ({len(items)})</h2>"
+            f'<ul class="mi-list">{"".join(rows)}</ul></section>'
+        )
+    return "\n".join(sections)
+
+
 def render_home(output_dir: Path, notes: list, config: SiteConfig) -> None:
     custom = None
     if config.hooks.home_body is not None:
         custom = config.hooks.home_body(notes=notes, config=config)
-    body = custom if custom is not None else f"<h1>{html.escape(config.site_name)}</h1>\n" + _home_sections(
-        notes, config
-    )
+    if custom is not None:
+        body = custom
+    elif config.status_home:
+        body = _status_home(notes, config)
+    else:
+        body = f"<h1>{html.escape(config.site_name)}</h1>\n" + _home_sections(notes, config)
 
     # When the home_extra_jsonld hook is present, its returned list is used
     # EXACTLY (order matters byte-for-byte for parity migrations); otherwise a
