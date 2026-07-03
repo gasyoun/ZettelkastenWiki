@@ -134,17 +134,35 @@ def note_slug(rel_path: str, frontmatter: dict, config: SiteConfig) -> str:
 def load_catalog(config: SiteConfig) -> list:
     root = Path(config.wiki_root)
     notes: list[Note] = []
+    seen_slugs: set[str] = set()
     for spec in config.groups:
-        group_dir = root / spec.name
+        group_dir = root / (spec.source_dir if spec.source_dir else spec.name)
         if not group_dir.exists():
             continue
-        for path in sorted(group_dir.glob("*.md")):
+        globber = group_dir.rglob if spec.recursive else group_dir.glob
+        for path in sorted(globber(spec.pattern)):
+            if not path.is_file():
+                continue
+            if any(path.match(pat) or path.name == pat for pat in spec.exclude):
+                continue
             text = path.read_text(encoding="utf-8")
             frontmatter, body = parse_frontmatter(text)
             if config.source_filter is not None:
                 body = config.source_filter(body)
+            # rel_path stays group-scoped so URLs are /group/slug/ regardless
+            # of where the source file physically lives.
             rel_path = f"{spec.name}/{path.name}"
             slug = note_slug(rel_path, frontmatter, config)
+            if slug in seen_slugs:
+                # Two source files collided on a slug (e.g. same stem in a
+                # recursive tree) — disambiguate with a numeric suffix so both
+                # publish and every URL stays unique.
+                base = slug
+                i = 2
+                while f"{base}-{i}" in seen_slugs:
+                    i += 1
+                slug = f"{base}-{i}"
+            seen_slugs.add(slug)
             # Defaults layer (opt-in): a frontmatter-less doc still gets a real
             # title from its first `# H1` instead of the filename stem. slug,
             # description and aliases already degrade gracefully below.

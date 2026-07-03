@@ -544,7 +544,7 @@ def page_shell(
         loadIndex().then(index => {{
           if (input.value.trim().toLowerCase() !== q) return;  // stale result
           index
-            .filter(item => (item.terms || []).join(' ').toLowerCase().includes(q))
+            .filter(item => ((item.terms || []).join(' ') + ' ' + (item.text || '')).toLowerCase().includes(q))
             .slice(0, 8)
             .forEach(item => {{
               const li = document.createElement('li');

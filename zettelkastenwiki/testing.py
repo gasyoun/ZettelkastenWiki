@@ -193,11 +193,16 @@ def assert_search_index(output_dir: "Path | str") -> None:
     assert not empty, f"search records without terms: {empty[:10]}"
 
 
-def run_all(output_dir: "Path | str", config: SiteConfig) -> None:
+def run_all(output_dir: "Path | str", config: SiteConfig, *, seo: bool = True) -> None:
+    """Run every applicable invariant. ``seo=False`` skips the public-SEO
+    checks (unique ≤160 descriptions) that don't apply to an internal
+    AI-memory site — structural invariants (links, single `<h1>`, canonical,
+    hreflang, JSON-LD, sitemap, search) still run."""
     assert_internal_links_resolve(output_dir, config)
     if config.og_images:
         assert_og_images_resolve(output_dir, config)
-    assert_unique_descriptions(output_dir)
+    if seo:
+        assert_unique_descriptions(output_dir)
     assert_single_h1(output_dir)
     assert_canonical_self(output_dir, config)
     assert_reciprocal_hreflang(output_dir, config)

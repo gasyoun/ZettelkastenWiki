@@ -27,6 +27,13 @@ class GroupSpec:
         Empty string → the site language.
     standalone_nav: the group gets a minimal own nav instead of the full
         site tree (the ORS ``en`` lead-gen pattern).
+    source_dir: load this group's ``.md`` from here (relative to
+        ``wiki_root``) instead of ``wiki_root/<name>/`` — the multi-root
+        in-place ingest for AI-memory sites (e.g. ``handoffs``, ``.`` for the
+        repo root). Empty → the default ``<name>/`` subdir.
+    recursive: glob ``**/*.md`` under source_dir (default: top level only).
+    pattern: filename glob (default ``*.md``).
+    exclude: filename globs to skip (e.g. ``("README.md",)``).
     """
 
     name: str
@@ -35,6 +42,10 @@ class GroupSpec:
     jsonld_type: str = "webpage"
     lang: str = ""
     standalone_nav: bool = False
+    source_dir: str = ""
+    recursive: bool = False
+    pattern: str = "*.md"
+    exclude: tuple = ()
 
 
 @dataclass(frozen=True)
@@ -165,6 +176,16 @@ class SiteConfig:
     #: Preprocess each note's body right after frontmatter is split, before
     #: title/excerpt derivation (e.g. strip Jekyll `{% raw %}` liquid tags).
     source_filter: "Callable[[str], str] | None" = None
+    #: Guarantee exactly one `<h1>` per page (AI-memory / arbitrary docs):
+    #: inject one from the title when the body has none, and demote any
+    #: extra `<h1>` to `<h2>`. Supersedes the title_from_h1 injection.
+    enforce_single_h1: bool = False
+    #: Index note *body* text (not just title/aliases) into search.json so a
+    #: query can match content — the recall win for memory sites. Off by
+    #: default (keeps the index small for public sites).
+    full_text_search: bool = False
+    #: Max body chars added to each search record when full_text_search is on.
+    body_search_chars: int = 4000
     #: output subdir name → source directory, copied verbatim into the build.
     static_assets: dict = field(default_factory=dict)
     #: Emit an .htaccess disabling rewrites (WordPress-subfolder hosting).

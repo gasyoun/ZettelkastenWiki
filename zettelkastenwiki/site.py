@@ -179,12 +179,31 @@ def render_home(output_dir: Path, notes: list, config: SiteConfig) -> None:
 # --- note pages -------------------------------------------------------------
 
 
+def _ensure_single_h1(body: str, title: str) -> str:
+    """Guarantee exactly one `<h1>` in rendered ``body``: inject one from the
+    title when there is none, and demote any extras to `<h2>` (arbitrary
+    repo docs often carry several top-level headings)."""
+    import html as _html
+    import re as _re
+
+    positions = [m.start() for m in _re.finditer(r"<h1\b", body)]
+    if not positions:
+        return f"<h1>{_html.escape(title)}</h1>\n{body}"
+    if len(positions) == 1:
+        return body
+    # Keep the first; demote the rest (and their closing tags) to <h2>.
+    first_end = body.index("</h1>", positions[0]) + len("</h1>")
+    head, tail = body[:first_end], body[first_end:]
+    tail = tail.replace("<h1>", "<h2>").replace("<h1 ", "<h2 ").replace("</h1>", "</h2>")
+    return head + tail
+
+
 def render_note(output_dir: Path, note: Note, notes: list, config: SiteConfig) -> None:
     body = markdown_to_html(note.body, note, notes, config)
-    # Defaults layer (opt-in): a frontmatter-less doc whose body has no `# H1`
-    # (e.g. a note that opens mid-prose) would render with no <h1>, breaking
-    # the single-<h1> SEO invariant — inject one from the title.
-    if config.title_from_h1 and "<h1" not in body:
+    # Defaults / memory layer (opt-in): guarantee exactly one <h1> per page.
+    if config.enforce_single_h1:
+        body = _ensure_single_h1(body, note.title)
+    elif config.title_from_h1 and "<h1" not in body:
         import html as _html
 
         body = f"<h1>{_html.escape(note.title)}</h1>\n{body}"
@@ -314,6 +333,8 @@ def render_nav(notes: list, config: SiteConfig) -> str:
 
 def write_search_index(output_dir: Path, notes: list, config: "SiteConfig | None" = None) -> None:
     extra = config.extra_search_terms if config else None
+    full_text = bool(config and config.full_text_search)
+    body_chars = config.body_search_chars if config else 4000
     records = []
     for note in notes:
         if not note.indexable:
@@ -321,6 +342,10 @@ def write_search_index(output_dir: Path, notes: list, config: "SiteConfig | None
         record = search_record(note)
         if extra is not None:
             record["terms"] = record["terms"] + [t for t in extra(note) if t]
+        if full_text:
+            # Cleaned body text so a query matches content, not just titles —
+            # the recall win for AI-memory sites.
+            record["text"] = markdown_excerpt(note.body, body_chars)
         records.append(record)
     # Minified: fetched by the client, not read by humans.
     write_text(
