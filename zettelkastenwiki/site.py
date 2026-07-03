@@ -297,17 +297,28 @@ def render_related(note: Note, notes: list, config: SiteConfig) -> str:
 
 
 def _compute_backlinks(notes: list, config: SiteConfig) -> dict:
-    """rel_path → list of notes whose body wikilinks to it (the reverse of the
-    link graph). Built once per publish; scans each note's `[[target]]`."""
+    """rel_path → notes that reference it (the reverse link graph). Scans each
+    note body for both ``[[wikilinks]]`` AND Markdown-link targets ending in
+    ``<name>.md`` — the latter resolves relative links *and* full repo URLs
+    (e.g. a GitHub blob URL to a sibling handoff) by filename stem, so the
+    backlinks work on corpora that use ordinary Markdown links, not just
+    wikilinks."""
     import re as _re
 
     from .markdown import resolve_wiki_link
 
     by_rel = {n.rel_path: [] for n in notes}
     wikilink = _re.compile(r"\[\[([^]|\n]+)(?:\|[^]\n]+)?]]")
+    mdlink = _re.compile(r"\]\(([^)\s]+\.md)(?:[#?][^)\s]*)?\)")
     for src in notes:
+        targets = list(wikilink.findall(src.body))
+        # Markdown-link URLs → the trailing filename stem (handles ../x.md and
+        # https://…/handoffs/H103_….md alike).
+        for url in mdlink.findall(src.body):
+            stem = url.rsplit("/", 1)[-1][:-3]  # drop ".md"
+            targets.append(stem)
         seen = set()
-        for target in wikilink.findall(src.body):
+        for target in targets:
             _url, resolved = resolve_wiki_link(target, src, notes, config)
             if resolved is not None and resolved.rel_path != src.rel_path:
                 if resolved.rel_path not in seen:

@@ -80,6 +80,20 @@ def test_backlinks_rendered(tmp_path):
     assert 'class="backlinks"' not in new
 
 
+def test_backlinks_resolve_markdown_and_url_links(tmp_path):
+    # Backlinks must also count ordinary Markdown links and full repo URLs,
+    # not just [[wikilinks]] — the real-corpus case.
+    root = _git_repo(tmp_path)
+    (root / "notes" / "rel.md").write_text("# Rel\n\nsee [old](../notes/old.md).", encoding="utf-8")
+    (root / "notes" / "url.md").write_text(
+        "# Url\n\nper [old](https://github.com/x/y/blob/main/notes/old.md).", encoding="utf-8"
+    )
+    cfg = _config(root, backlinks=True)
+    out = publish(cfg, tmp_path / "site")
+    old = (out / "notes" / "old" / "index.html").read_text(encoding="utf-8")
+    assert "/notes/rel/" in old and "/notes/url/" in old, "md/url links not counted as backlinks"
+
+
 def test_git_date_used_as_page_date_badge(tmp_path):
     cfg = _config(_git_repo(tmp_path), git_recency=True)
     out = publish(cfg, tmp_path / "site")

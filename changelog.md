@@ -10,7 +10,10 @@
 - **`GroupSpec.sort="recency"`** — orders a group's nav/home newest-commit
   first (notes without a date sink to the bottom).
 - **`SiteConfig.backlinks`** — a "Referenced by" section per note listing the
-  notes that wikilink to it (reverse link graph), newest-first.
+  notes that reference it (reverse link graph), newest-first. Resolves
+  `[[wikilinks]]` AND Markdown-link targets ending in `<name>.md` (relative
+  links and full repo/blob URLs alike), so it works on ordinary Markdown
+  corpora, not just wikilink ones.
 - `Strings.backlinks_heading`. +6 tests (42 total).
 
 
