@@ -41,6 +41,10 @@ class Note:
     indexable: bool = True
     legacy_source: str = ""
     lang: str = ""
+    #: Last-commit date (``YYYY-MM-DD``) and author, filled when
+    #: ``SiteConfig.git_recency`` is on — the recency signal for memory sites.
+    git_date: str = ""
+    git_author: str = ""
 
     @property
     def output_parts(self) -> tuple:
@@ -175,6 +179,7 @@ def load_catalog(config: SiteConfig) -> list:
                 markdown_excerpt(body), 155
             )
             og_override = str(frontmatter.get("og_image", "")).strip()
+            git_date, git_author = _git_recency(path) if config.git_recency else ("", "")
             notes.append(
                 Note(
                     group=spec.name,
@@ -201,9 +206,34 @@ def load_catalog(config: SiteConfig) -> list:
                     indexable=bool(frontmatter.get("indexable", True)),
                     legacy_source=str(frontmatter.get("legacy_source", "")),
                     lang=spec.lang or config.language,
+                    git_date=git_date,
+                    git_author=git_author,
                 )
             )
     return notes
+
+
+def _git_recency(path: Path) -> tuple:
+    """(last-commit YYYY-MM-DD, author) for ``path`` via git log; ('','') if
+    unavailable (not a repo, uncommitted file, or git missing)."""
+    import subprocess
+
+    try:
+        out = subprocess.run(
+            ["git", "log", "-1", "--format=%cs%x09%an", "--", path.name],
+            cwd=path.parent,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ("", "")
+    line = (out.stdout or "").strip()
+    if out.returncode != 0 or not line or "\t" not in line:
+        return ("", "")
+    date, author = line.split("\t", 1)
+    return (date.strip(), author.strip())
 
 
 def first_h1(body: str) -> str:

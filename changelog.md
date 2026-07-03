@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.0] — 2026-07-03
+
+**Git recency + backlinks** (Wave-5 memory increments; opt-in, default off).
+
+- **`SiteConfig.git_recency`** — fills each note's `git_date` (YYYY-MM-DD) and
+  `git_author` from `git log` at build time. The date becomes the page's
+  "updated" badge when frontmatter has no `last_updated`.
+- **`GroupSpec.sort="recency"`** — orders a group's nav/home newest-commit
+  first (notes without a date sink to the bottom).
+- **`SiteConfig.backlinks`** — a "Referenced by" section per note listing the
+  notes that wikilink to it (reverse link graph), newest-first.
+- `Strings.backlinks_heading`. +6 tests (42 total).
+
+
 ## [0.3.0] — 2026-07-03
 
 **AI-memory sites for commit-heavy repos** (Wave 5). All opt-in, default off.

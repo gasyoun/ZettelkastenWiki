@@ -46,6 +46,9 @@ class GroupSpec:
     recursive: bool = False
     pattern: str = "*.md"
     exclude: tuple = ()
+    #: Nav / home ordering: "title" (default) or "recency" (newest git commit
+    #: first — needs ``SiteConfig.git_recency``).
+    sort: str = "title"
 
 
 @dataclass(frozen=True)
@@ -59,6 +62,7 @@ class Strings:
     shortcuts_aria: str = "Quick links"
     updated_label: str = "Updated"
     related_heading: str = "Related pages"
+    backlinks_heading: str = "Referenced by"
     cta_heading: str = "Next step"
     read_more: str = "Read more →"
     details_label: str = "More →"
@@ -186,6 +190,13 @@ class SiteConfig:
     full_text_search: bool = False
     #: Max body chars added to each search record when full_text_search is on.
     body_search_chars: int = 4000
+    #: Fill each note's ``git_date``/``git_author`` from ``git log`` (memory
+    #: sites: rank/badge by "what changed lately"). One git call per note at
+    #: build time — off by default.
+    git_recency: bool = False
+    #: Render a "Referenced by" section on each note listing the notes that
+    #: link to it (reverse of the wikilink graph) — navigable memory.
+    backlinks: bool = False
     #: output subdir name → source directory, copied verbatim into the build.
     static_assets: dict = field(default_factory=dict)
     #: Emit an .htaccess disabling rewrites (WordPress-subfolder hosting).

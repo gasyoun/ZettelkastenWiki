@@ -46,9 +46,10 @@ def publish(config: SiteConfig, output_dir: "str | Path", render_og: "bool | Non
 
         write_og_images(output_path, notes, config)
 
+    backlinks = _compute_backlinks(notes, config) if config.backlinks else {}
     render_home(output_path, notes, config)
     for note in notes:
-        render_note(output_path, note, notes, config)
+        render_note(output_path, note, notes, config, backlinks.get(note.rel_path, []))
 
     write_search_index(output_path, notes, config)
     write_sitemap(output_path, notes, config)
@@ -199,7 +200,9 @@ def _ensure_single_h1(body: str, title: str) -> str:
     return head + tail
 
 
-def render_note(output_dir: Path, note: Note, notes: list, config: SiteConfig) -> None:
+def render_note(
+    output_dir: Path, note: Note, notes: list, config: SiteConfig, backlinks: "list | None" = None
+) -> None:
     body = markdown_to_html(note.body, note, notes, config)
     # Defaults / memory layer (opt-in): guarantee exactly one <h1> per page.
     if config.enforce_single_h1:
@@ -213,6 +216,7 @@ def render_note(output_dir: Path, note: Note, notes: list, config: SiteConfig) -
     extras = _run(config.hooks.note_extras, note=note, notes=notes, config=config)
     cta_html = render_cta(note, config)
     related_html = render_related(note, notes, config)
+    backlinks_html = render_backlinks(backlinks or [], config)
 
     nav = None
     if config.hooks.nav_override is not None:
@@ -230,12 +234,13 @@ def render_note(output_dir: Path, note: Note, notes: list, config: SiteConfig) -
         title=note.seo_title,
         description=note.seo_description,
         canonical_url=note.canonical_url,
-        body=f"{body}{extras}{cta_html}{related_html}",
+        body=f"{body}{extras}{cta_html}{related_html}{backlinks_html}",
         nav=nav,
         note=note,
         og_image=note.og_image,
         json_ld=json_ld_for_note(note, config),
-        last_updated=str(note.frontmatter.get("last_updated", "")),
+        # Recency: frontmatter last_updated wins, else the git commit date.
+        last_updated=str(note.frontmatter.get("last_updated", "")) or note.git_date,
     )
     write_text(output_dir / note.group / note.slug / "index.html", html_text)
 
@@ -291,6 +296,46 @@ def render_related(note: Note, notes: list, config: SiteConfig) -> str:
     )
 
 
+def _compute_backlinks(notes: list, config: SiteConfig) -> dict:
+    """rel_path → list of notes whose body wikilinks to it (the reverse of the
+    link graph). Built once per publish; scans each note's `[[target]]`."""
+    import re as _re
+
+    from .markdown import resolve_wiki_link
+
+    by_rel = {n.rel_path: [] for n in notes}
+    wikilink = _re.compile(r"\[\[([^]|\n]+)(?:\|[^]\n]+)?]]")
+    for src in notes:
+        seen = set()
+        for target in wikilink.findall(src.body):
+            _url, resolved = resolve_wiki_link(target, src, notes, config)
+            if resolved is not None and resolved.rel_path != src.rel_path:
+                if resolved.rel_path not in seen:
+                    seen.add(resolved.rel_path)
+                    by_rel[resolved.rel_path].append(src)
+    return by_rel
+
+
+def render_backlinks(sources: list, config: SiteConfig) -> str:
+    if not sources:
+        return ""
+    ordered = sorted(sources, key=lambda n: (n.git_date, n.title), reverse=True)
+    links = "\n".join(
+        f'<li><a href="{n.url_path}">{html.escape(n.title)}</a></li>' for n in ordered
+    )
+    return (
+        f'<section class="backlinks"><h2>{html.escape(config.strings.backlinks_heading)}</h2>'
+        f"<ul>{links}</ul></section>"
+    )
+
+
+def _sorted_group(items: list, spec) -> list:
+    if spec is not None and spec.sort == "recency":
+        # Newest git commit first; notes without a date sink to the bottom.
+        return sorted(items, key=lambda n: (n.git_date or "", n.title), reverse=True)
+    return sorted(items, key=lambda n: n.title)
+
+
 # --- nav --------------------------------------------------------------------
 
 
@@ -307,8 +352,14 @@ def group_notes(notes: list, config: SiteConfig) -> dict:
             if config.hooks.group_label is not None:
                 label = config.hooks.group_label(note=note, config=config) or ""
             label = label or spec.nav_label or spec.name
-            buckets.setdefault(label, []).append(note)
-    return {label: sorted(items, key=lambda n: n.title) for label, items in buckets.items() if items}
+            buckets.setdefault(label, []).append((note, spec))
+    result = {}
+    for label, pairs in buckets.items():
+        if not pairs:
+            continue
+        spec = pairs[0][1]
+        result[label] = _sorted_group([n for n, _ in pairs], spec)
+    return result
 
 
 def render_nav(notes: list, config: SiteConfig) -> str:

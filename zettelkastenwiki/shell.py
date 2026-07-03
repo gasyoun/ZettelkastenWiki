@@ -233,6 +233,8 @@ BASE_CSS = """
       font-weight: 600;
     }
     .related { margin-top: 32px; color: var(--muted); }
+    .backlinks { margin-top: 28px; color: var(--muted); }
+    .backlinks h2 { font-size: 0.95rem; }
     .page-meta {
       text-align: right;
       font-size: 0.8rem;
