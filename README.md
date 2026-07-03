@@ -88,7 +88,7 @@ Full roadmap:
 | SamudraManthanam → [samskrtam.ru/corpus-faq](https://samskrtam.ru/corpus-faq/) | same hosting | ✅ **live** — 6 RU notes; second FTP site on the shared deploy path |
 | [SanskritLexicography](https://github.com/gasyoun/SanskritLexicography) research site | consolidation | ✅ **merged** ([PR #107](https://github.com/gasyoun/SanskritLexicography/pull/107)) — 10 scattered convention docs → one site, **zero per-file edits** (v0.2.0 defaults layer) |
 | [MWS](https://github.com/sanskrit-lexicon/MWS) | docs-per-repo probe | ✅ **probed** → drove the v0.2.0 defaults layer; no upstream PR (org batched-PR cadence) |
-| Uprava (private) | AI-memory site | ✅ **v0.3.0 pilot** — 124-note searchable memory (root docs + handoffs + archive) from the live repo via multi-root ingest, full-text body search, git recency, backlinks (107 pages) & H### auto-linking (262 prose links); built locally, never published |
+| Uprava (private) | AI-memory site | ✅ **v0.3.0 pilot** — 124-note searchable memory (root docs + handoffs + archive) from the live repo via multi-root ingest, full-text body search, git recency, backlinks (107 pages), H### auto-linking (262 prose links) & a status-index home (Hub/In-work/Queued/Done/Archived); built locally, never published |
 
 ## Use cases
 
@@ -111,9 +111,9 @@ Full roadmap:
 Waves 1–3 (extract → migrate ORS-FAQ → pilot four consumers) are done; the
 defaults layer (v0.2.0) proved arbitrary docs-per-repo publishing with zero
 edits. **Wave 5 shipped (v0.3.0):** multi-root in-place ingest, full-text body
-search, single-`<h1>` enforcement, and `run_all(seo=False)` for internal
-sites — first proven on a private 124-note Uprava memory site. Building blocks
-for **AI-memory sites for commit-heavy repos**:
+search, single-`<h1>` enforcement, git recency, backlinks, `H###`
+auto-linking and a status-grouped index home — all proven on a private
+126-note Uprava memory site. **AI-memory building blocks (v0.3.0–v0.6.0):**
 
 - ✅ **Multi-root ingest** (v0.3.0) — one site from *several* source dirs
   (`handoffs/`, `docs/`, root `*.md`) with no copying, via
@@ -125,8 +125,10 @@ for **AI-memory sites for commit-heavy repos**:
   `H103` in prose into links to the note they name (tag-aware, feeds the
   backlink graph); resolves relative/URL `.md` links too.
 - ✅ **Backlinks** (v0.4.0) — `backlinks` renders a per-note "Referenced by"
-  from the reverse link graph (wikilinks + Markdown/URL `.md` links). *(A
-  status-grouped memory index home is a future increment.)*
+  from the reverse link graph (wikilinks + Markdown/URL `.md` links).
+- ✅ **Status-grouped memory index home** (v0.6.0) — `status_home` +
+  `status_of` + `status_buckets` render the home as a GTD-style bucketed
+  index (counts summary + per-status sections, newest-first).
 - ✅ **Full-text body search** (v0.3.0) — `full_text_search` indexes cleaned
   bodies (hyphen/slash-preserving) so "have we hit this before?" matches content.
 - **CI freshness gate** — a reusable action that rebuilds the memory site on
