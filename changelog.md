@@ -12,7 +12,8 @@
 - **Full-text body search** — `SiteConfig.full_text_search` (+ `body_search_chars`)
   indexes cleaned note bodies into `search.json`; the client search now matches
   body content, not just titles/aliases — the recall win for "have we hit this
-  before?".
+  before?". A dedicated body cleaner preserves hyphens/slashes so technical
+  terms (`golden-diff`, `bot-kb-sync`, `H103`) stay searchable.
 - **`enforce_single_h1`** — guarantees exactly one `<h1>` per page (inject from
   title when none, demote extras to `<h2>`) so arbitrary repo docs stay valid.
 - **`testing.run_all(out, config, seo=False)`** — skip the public-SEO checks

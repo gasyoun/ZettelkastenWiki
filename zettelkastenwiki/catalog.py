@@ -224,6 +224,22 @@ def markdown_excerpt(markdown: str, limit: int = 220) -> str:
     return truncate_text(text, limit)
 
 
+def search_body_text(markdown: str, limit: int) -> str:
+    """Cleaned body text for the full-text search index. Like
+    ``markdown_excerpt`` but preserves intra-word hyphens and slashes, so
+    technical terms (``golden-diff``, ``bot-kb-sync``, ``H103``, ``a/b``)
+    stay searchable — descriptions use ``markdown_excerpt`` unchanged."""
+    text = re.sub(r"^---\n.*?\n---\n", "", markdown, flags=re.DOTALL)
+    text = re.sub(r"```.*?```", " ", text, flags=re.DOTALL)
+    text = re.sub(r"!\[[^\]]*]\([^)]*\)", " ", text)
+    text = re.sub(r"\[([^\]]+)]\([^)]*\)", r"\1", text)
+    text = re.sub(r"\[\[([^]|]+)\|([^]]+)]]", r"\2", text)
+    text = re.sub(r"\[\[([^]]+)]]", r"\1", text)
+    text = re.sub(r"[#>*_`]+", " ", text)  # markdown markers, but keep - and /
+    text = re.sub(r"\s+", " ", text).strip()
+    return truncate_text(text, limit)
+
+
 def truncate_text(text: str, limit: int) -> str:
     if len(text) <= limit:
         return text

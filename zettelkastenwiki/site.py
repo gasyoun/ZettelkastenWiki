@@ -13,6 +13,7 @@ from .catalog import (
     escape_attr,
     load_catalog,
     markdown_excerpt,
+    search_body_text,
     search_record,
 )
 from .config import SiteConfig, _run
@@ -344,8 +345,9 @@ def write_search_index(output_dir: Path, notes: list, config: "SiteConfig | None
             record["terms"] = record["terms"] + [t for t in extra(note) if t]
         if full_text:
             # Cleaned body text so a query matches content, not just titles —
-            # the recall win for AI-memory sites.
-            record["text"] = markdown_excerpt(note.body, body_chars)
+            # the recall win for AI-memory sites. Preserves hyphens/slashes so
+            # technical terms stay searchable.
+            record["text"] = search_body_text(note.body, body_chars)
         records.append(record)
     # Minified: fetched by the client, not read by humans.
     write_text(

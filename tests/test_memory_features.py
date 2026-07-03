@@ -69,6 +69,20 @@ def test_full_text_search_indexes_body(tmp_path):
     records = json.loads((out / "search.json").read_text(encoding="utf-8"))
     h002 = next(r for r in records if r["url"].endswith("/h002-other/"))
     assert "widgets" in h002["text"], "body text not indexed"
+
+
+def test_full_text_preserves_hyphenated_terms(tmp_path):
+    (tmp_path / "note.md").write_text("# T\n\nThe golden-diff and bot-kb-sync in H103.", encoding="utf-8")
+    cfg = SiteConfig(
+        base_url="https://example.org",
+        site_name="M",
+        wiki_root=tmp_path,
+        groups=(GroupSpec(name="hub", source_dir=".", pattern="note.md"),),
+        full_text_search=True,
+    )
+    out = publish(cfg, tmp_path / "site")
+    rec = json.loads((out / "search.json").read_text(encoding="utf-8"))[0]
+    assert "golden-diff" in rec["text"] and "bot-kb-sync" in rec["text"]
     # And the client filter searches item.text (not just terms).
     home = (out / "index.html").read_text(encoding="utf-8")
     assert "item.text" in home
