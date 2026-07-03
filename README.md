@@ -88,7 +88,7 @@ Full roadmap:
 | SamudraManthanam → [samskrtam.ru/corpus-faq](https://samskrtam.ru/corpus-faq/) | same hosting | ✅ **live** — 6 RU notes; second FTP site on the shared deploy path |
 | [SanskritLexicography](https://github.com/gasyoun/SanskritLexicography) research site | consolidation | ✅ **merged** ([PR #107](https://github.com/gasyoun/SanskritLexicography/pull/107)) — 10 scattered convention docs → one site, **zero per-file edits** (v0.2.0 defaults layer) |
 | [MWS](https://github.com/sanskrit-lexicon/MWS) | docs-per-repo probe | ✅ **probed** → drove the v0.2.0 defaults layer; no upstream PR (org batched-PR cadence) |
-| Uprava (private) | AI-memory site | ✅ **v0.3.0 pilot** — 124-note searchable memory (root docs + handoffs + archive) from the live repo via multi-root ingest, full-text body search, git recency & backlinks (88 pages of "Referenced by"); built locally, never published |
+| Uprava (private) | AI-memory site | ✅ **v0.3.0 pilot** — 124-note searchable memory (root docs + handoffs + archive) from the live repo via multi-root ingest, full-text body search, git recency, backlinks (107 pages) & H### auto-linking (262 prose links); built locally, never published |
 
 ## Use cases
 
@@ -121,8 +121,9 @@ for **AI-memory sites for commit-heavy repos**:
 - ✅ **Recency & provenance** (v0.4.0) — `git_recency` fills each note's
   last-commit date/author; `GroupSpec.sort="recency"` orders newest-first and
   the date becomes the page badge.
-- **Auto-linking** — resolve bare `H###` / issue / doc references into
-  cross-links so the handoff graph becomes navigable, not just a file list.
+- ✅ **Auto-linking** (v0.5.0) — `autolink_patterns` turns bare tokens like
+  `H103` in prose into links to the note they name (tag-aware, feeds the
+  backlink graph); resolves relative/URL `.md` links too.
 - ✅ **Backlinks** (v0.4.0) — `backlinks` renders a per-note "Referenced by"
   from the reverse link graph (wikilinks + Markdown/URL `.md` links). *(A
   status-grouped memory index home is a future increment.)*
