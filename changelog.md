@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.2.0] — 2026-07-03
+
+**Opt-in defaults layer for frontmatter-less Markdown** (Wave-3 pilot #4, MWS
+docs-per-repo probe). All flags default off — no change for existing configs.
+
+- `SiteConfig.title_from_h1` — derive a note's title from its first `# H1`
+  when frontmatter has no `title:` (slug/description/aliases already degraded
+  to filename / first-paragraph / empty without any flag).
+- `SiteConfig.source_filter` — preprocess each body after frontmatter split,
+  before title/excerpt derivation (e.g. strip Jekyll `{% raw %}` tags).
+- `<h1>` injection: a frontmatter-less doc whose body has no heading gets one
+  from its title, preserving the single-`<h1>` invariant.
+- `catalog.first_h1()` helper. +7 tests (measured against real MWS reader
+  docs: 3 frontmatter-less docs publish into a harness-passing site with
+  **zero per-file edits**).
+
+
 ## [0.1.2] — 2026-07-03
 
 Byte-parity refinements from the ORS-FAQ Wave-2 migration (H103):

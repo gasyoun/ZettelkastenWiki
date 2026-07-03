@@ -157,6 +157,14 @@ class SiteConfig:
     og_options: dict = field(default_factory=dict)
     #: Home crumb name in BreadcrumbList JSON-LD ("" → site_name).
     breadcrumb_home_name: str = ""
+    #: Defaults layer (opt-in): derive a note's title from its first `# H1`
+    #: when frontmatter has no `title:` — for publishing frontmatter-less
+    #: Markdown (docs-per-repo). slug/description/aliases already degrade to
+    #: filename / first-paragraph / empty without any flag.
+    title_from_h1: bool = False
+    #: Preprocess each note's body right after frontmatter is split, before
+    #: title/excerpt derivation (e.g. strip Jekyll `{% raw %}` liquid tags).
+    source_filter: "Callable[[str], str] | None" = None
     #: output subdir name → source directory, copied verbatim into the build.
     static_assets: dict = field(default_factory=dict)
     #: Emit an .htaccess disabling rewrites (WordPress-subfolder hosting).

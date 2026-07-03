@@ -141,9 +141,15 @@ def load_catalog(config: SiteConfig) -> list:
         for path in sorted(group_dir.glob("*.md")):
             text = path.read_text(encoding="utf-8")
             frontmatter, body = parse_frontmatter(text)
+            if config.source_filter is not None:
+                body = config.source_filter(body)
             rel_path = f"{spec.name}/{path.name}"
             slug = note_slug(rel_path, frontmatter, config)
-            title = str(frontmatter.get("title", path.stem))
+            # Defaults layer (opt-in): a frontmatter-less doc still gets a real
+            # title from its first `# H1` instead of the filename stem. slug,
+            # description and aliases already degrade gracefully below.
+            fm_title = str(frontmatter.get("title", "")).strip()
+            title = fm_title or (config.title_from_h1 and first_h1(body)) or path.stem
             seo_title = str(frontmatter.get("seo_title", "")).strip() or (
                 f"{title}{config.seo_title_suffix}"
             )
@@ -180,6 +186,12 @@ def load_catalog(config: SiteConfig) -> list:
                 )
             )
     return notes
+
+
+def first_h1(body: str) -> str:
+    """The text of the first `# H1` heading, or '' if none."""
+    match = re.search(r"^\#\s+(.*\S)\s*$", body, re.MULTILINE)
+    return match.group(1).strip() if match else ""
 
 
 def markdown_excerpt(markdown: str, limit: int = 220) -> str:

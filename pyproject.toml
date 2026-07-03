@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zettelkastenwiki"
-version = "0.1.2"
+version = "0.2.0"
 description = "Static knowledge-site generator for Zettelkasten-style Markdown wikis: wikilinks, SEO/JSON-LD, hreflang, search, sitemap, quizzes — with render hooks and a reusable invariant test harness."
 readme = "README.md"
 requires-python = ">=3.10"

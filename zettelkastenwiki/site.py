@@ -181,6 +181,13 @@ def render_home(output_dir: Path, notes: list, config: SiteConfig) -> None:
 
 def render_note(output_dir: Path, note: Note, notes: list, config: SiteConfig) -> None:
     body = markdown_to_html(note.body, note, notes, config)
+    # Defaults layer (opt-in): a frontmatter-less doc whose body has no `# H1`
+    # (e.g. a note that opens mid-prose) would render with no <h1>, breaking
+    # the single-<h1> SEO invariant — inject one from the title.
+    if config.title_from_h1 and "<h1" not in body:
+        import html as _html
+
+        body = f"<h1>{_html.escape(note.title)}</h1>\n{body}"
     if config.hooks.note_body_filter is not None:
         body = config.hooks.note_body_filter(body=body, note=note, notes=notes, config=config)
     extras = _run(config.hooks.note_extras, note=note, notes=notes, config=config)
