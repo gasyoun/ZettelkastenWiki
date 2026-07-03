@@ -1,5 +1,18 @@
 # Changelog
 
+At a glance — every feature after v0.1.0 is **opt-in and default-off**, so
+existing consumers never change behavior on upgrade:
+
+| Version | Theme | Wave |
+|---|---|---|
+| 0.6.0 | Status-grouped memory-index home | 5 |
+| 0.5.0 | Bare-token (`H###`) auto-linking | 5 |
+| 0.4.0 | Git recency ranking + backlinks | 5 |
+| 0.3.0 | Multi-root ingest + full-text body search | 5 |
+| 0.2.0 | Defaults layer for frontmatter-less Markdown | 4 |
+| 0.1.1–0.1.2 | Parity-migration extension points | 2 |
+| 0.1.0 | Initial extraction of the ORS-FAQ generator | 1 |
+
 ## [0.6.0] — 2026-07-03
 
 **Status-grouped memory-index home** (Wave-5; opt-in, default off).
@@ -14,7 +27,6 @@
   order + display names; unlisted buckets append under their key.
 - +4 tests (52 total).
 
-
 ## [0.5.0] — 2026-07-03
 
 **Bare-token auto-linking** (Wave-5 memory increment; opt-in, default off).
@@ -27,7 +39,6 @@
   existing `<a>`/`<code>`. Auto-linked references also feed the backlink
   graph. `markdown.autolink_target()` / `build_autolinker()` are public.
 - +5 tests (48 total).
-
 
 ## [0.4.0] — 2026-07-03
 
@@ -44,7 +55,6 @@
   links and full repo/blob URLs alike), so it works on ordinary Markdown
   corpora, not just wikilink ones.
 - `Strings.backlinks_heading`. +6 tests (42 total).
-
 
 ## [0.3.0] — 2026-07-03
 
@@ -66,7 +76,6 @@
   (unique ≤160 descriptions) for internal memory sites; structural invariants
   still run. +6 tests (36 total).
 
-
 ## [0.2.0] — 2026-07-03
 
 **Opt-in defaults layer for frontmatter-less Markdown** (Wave-3 pilot #4, MWS
@@ -82,7 +91,6 @@ docs-per-repo probe). All flags default off — no change for existing configs.
 - `catalog.first_h1()` helper. +7 tests (measured against real MWS reader
   docs: 3 frontmatter-less docs publish into a harness-passing site with
   **zero per-file edits**).
-
 
 ## [0.1.2] — 2026-07-03
 

@@ -94,17 +94,30 @@ Full roadmap:
 
 1. **Product FAQ / support site** — the origin case (ORS-FAQ): notes with
    CTAs, quizzes, testimonials, SEO/JSON-LD, hreflang for a lead-gen funnel.
+   Live at [samskrtam.ru/faq](https://samskrtam.ru/faq/).
 2. **Project docs / knowledge base** — a repo's own explainer site from a
-   `wiki/` of Markdown (kosha, SamudraManthanam): nav + search + sitemap for free.
+   `wiki/` of Markdown (kosha, SamudraManthanam): nav + search + sitemap +
+   JSON-LD for free from ~50 lines of `SiteConfig`.
 3. **Docs-per-repo consolidation** — publish frontmatter-less Markdown already
    sitting in a repo (`docs/`, `research/`, conventions) with **zero editing**
-   via the v0.2.0 defaults layer (`title_from_h1`, `source_filter`,
-   `<h1>` injection) — see SanskritLexicography.
-4. **AI / agent memory browser** *(next — see roadmap)* — turn a commit-heavy
-   repo's accumulated Markdown memory (handoffs, `.ai_state.md`, `FINDINGS.md`,
-   `ROADMAP*.md`, decision logs) into a **searchable, cross-linked site** a
-   fresh agent session can navigate instead of grepping — the institutional
-   memory of a long-running project, made addressable.
+   via the defaults layer (`title_from_h1`, `source_filter`, `<h1>` injection,
+   v0.2.0) — proven on SanskritLexicography's scattered convention docs.
+4. **AI / agent memory browser** — turn a commit-heavy repo's accumulated
+   Markdown memory (handoffs, `.ai_state.md`, `FINDINGS.md`, `ROADMAP*.md`,
+   decision logs) into a **searchable, cross-linked, status-ranked site** a
+   fresh agent session navigates instead of grepping. Built out in v0.3.0–v0.6.0:
+   - **multi-root in-place ingest** — one site from several repo dirs, no copying;
+   - **full-text body search** — match content, not just titles (hyphen-safe);
+   - **git recency** — last-commit date badge + newest-first ordering;
+   - **backlinks** — per-note "Referenced by" from wikilinks, Markdown/URL
+     `.md` links, and auto-linked tokens;
+   - **`H###` auto-linking** — bare handoff/issue tokens in prose become links;
+   - **status-index home** — a GTD-style bucketed landing (in-work / done /
+     archived) with counts.
+
+   Proven on a **private 126-note [Uprava](https://github.com/gasyoun/Uprava)
+   memory site** (built locally, never published): full-text search over every
+   body, 107 pages of backlinks, 262 auto-linked `H###` references.
 
 ## Roadmap
 
