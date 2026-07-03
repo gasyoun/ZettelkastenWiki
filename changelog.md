@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.2] — 2026-07-03
+
+Byte-parity refinements from the ORS-FAQ Wave-2 migration (H103):
+
+- Shell whitespace matches the source generator (multi-line shortcuts bar and
+  mobile-CTA block); search JS comments restored.
+- `mobile_cta` hook output is now trusted verbatim (same contract as the
+  shortcuts/nav hooks) — the theme owns escaping.
+
 ## [0.1.1] — 2026-07-03
 
 Parity-migration extension points (needed by the ORS-FAQ Wave-2 golden-diff

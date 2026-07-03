@@ -425,7 +425,9 @@ def page_shell(
 
     shortcuts_html = _run(hooks.shortcuts, note=note, notes=None, config=config)
     shortcuts_bar = (
-        f'<nav class="shortcuts-bar" aria-label="{escape_attr(strings.shortcuts_aria)}">{shortcuts_html}</nav>'
+        f'<nav class="shortcuts-bar" aria-label="{escape_attr(strings.shortcuts_aria)}">\n'
+        f"      {shortcuts_html}\n"
+        "    </nav>"
         if shortcuts_html
         else ""
     )
@@ -438,9 +440,13 @@ def page_shell(
     if hooks.mobile_cta is not None:
         pair = hooks.mobile_cta(note=note, config=config)
         if pair:
+            # Hook-authored markup is trusted verbatim (same contract as the
+            # shortcuts/nav hooks) — the theme escapes what needs escaping.
             cta_label, cta_url = pair
             mobile_cta_html = (
-                f'<div class="mobile-cta"><a href="{escape_attr(cta_url)}">{html.escape(cta_label)}</a></div>'
+                '<div class="mobile-cta">\n'
+                f'    <a href="{cta_url}">{cta_label}</a>\n'
+                "  </div>"
             )
 
     author_meta = (
@@ -519,6 +525,9 @@ def page_shell(
     const input = document.getElementById('site-search');
     const results = document.getElementById('search-results');
     if (input && results) {{
+      // Lazy-load the index: most visitors never search, so keep its weight off
+      // the critical path. Fetched once on first focus/keystroke (or immediately
+      // for a /faq/?q=… deep link below). The promise is cached so it loads once.
       let indexPromise = null;
       const loadIndex = () => {{
         if (!indexPromise) {{
@@ -533,7 +542,7 @@ def page_shell(
         results.innerHTML = '';
         if (q.length < 2) return;
         loadIndex().then(index => {{
-          if (input.value.trim().toLowerCase() !== q) return;
+          if (input.value.trim().toLowerCase() !== q) return;  // stale result
           index
             .filter(item => (item.terms || []).join(' ').toLowerCase().includes(q))
             .slice(0, 8)
@@ -548,7 +557,10 @@ def page_shell(
         }});
       }};
       input.addEventListener('input', runSearch);
-      input.addEventListener('focus', loadIndex, {{ once: true }});
+      input.addEventListener('focus', loadIndex, {{ once: true }});  // warm cache
+      // Deep-link support: /faq/?q=… pre-fills and runs the search on load.
+      // This is the canonical SearchAction target in the home WebSite JSON-LD,
+      // so engines can wire a sitelinks searchbox straight to it.
       const initialQuery = new URLSearchParams(window.location.search).get('q');
       if (initialQuery) {{
         input.value = initialQuery;
