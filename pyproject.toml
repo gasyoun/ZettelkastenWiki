@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zettelkastenwiki"
+version = "0.1.0"
+description = "Static knowledge-site generator for Zettelkasten-style Markdown wikis: wikilinks, SEO/JSON-LD, hreflang, search, sitemap, quizzes — with render hooks and a reusable invariant test harness."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Mārcis Gasūns" }]
+keywords = ["zettelkasten", "wiki", "static-site-generator", "markdown", "seo"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Text Processing :: Markup :: Markdown",
+]
+dependencies = []
+
+[project.optional-dependencies]
+og = ["Pillow>=10.1"]
+dev = ["pytest>=7", "Pillow>=10.1"]
+
+[project.urls]
+Homepage = "https://github.com/gasyoun/ZettelkastenWiki"
+Issues = "https://github.com/gasyoun/ZettelkastenWiki/issues"
+
+[tool.setuptools.packages.find]
+include = ["zettelkastenwiki*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
