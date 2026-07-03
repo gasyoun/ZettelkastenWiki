@@ -81,13 +81,55 @@ Full roadmap:
 
 ## Consumers
 
-| Site | Status |
-|---|---|
-| [ORS-FAQ](https://github.com/gasyoun/ORS-FAQ) → [samskrtam.ru/faq](https://samskrtam.ru/faq/) | source of the extraction; migrates in Wave 2 behind a golden-diff parity gate |
-| [kosha](https://github.com/gasyoun/kosha) | Wave-3 pilot (greenfield) |
-| [SanskritLexicography](https://github.com/gasyoun/SanskritLexicography) article site | Wave-3 pilot (consolidation) |
-| SamudraManthanam | Wave-3 pilot (same hosting) |
-| [MWS](https://github.com/sanskrit-lexicon/MWS) | Wave-3 pilot (docs-per-repo probe) |
+| Site | Angle | Status |
+|---|---|---|
+| [ORS-FAQ](https://github.com/gasyoun/ORS-FAQ) → [samskrtam.ru/faq](https://samskrtam.ru/faq/) | source of the extraction | ✅ **live** — migrated behind a golden-diff byte-parity gate (`publish.py` 3,074→1,812 lines); 168-test suite green |
+| [kosha](https://github.com/gasyoun/kosha) → [gasyoun.github.io/kosha/docs-site](https://gasyoun.github.io/kosha/docs-site/) | greenfield | ✅ **live** — 5 notes + ~50-line config on the existing legacy Pages |
+| SamudraManthanam → [samskrtam.ru/corpus-faq](https://samskrtam.ru/corpus-faq/) | same hosting | ✅ **live** — 6 RU notes; second FTP site on the shared deploy path |
+| [SanskritLexicography](https://github.com/gasyoun/SanskritLexicography) research site | consolidation | 🔵 [PR #107](https://github.com/gasyoun/SanskritLexicography/pull/107) — 10 scattered convention docs → one site, **zero per-file edits** (v0.2.0 defaults layer) |
+| [MWS](https://github.com/sanskrit-lexicon/MWS) | docs-per-repo probe | ✅ **probed** → drove the v0.2.0 defaults layer; no upstream PR (org batched-PR cadence) |
+
+## Use cases
+
+1. **Product FAQ / support site** — the origin case (ORS-FAQ): notes with
+   CTAs, quizzes, testimonials, SEO/JSON-LD, hreflang for a lead-gen funnel.
+2. **Project docs / knowledge base** — a repo's own explainer site from a
+   `wiki/` of Markdown (kosha, SamudraManthanam): nav + search + sitemap for free.
+3. **Docs-per-repo consolidation** — publish frontmatter-less Markdown already
+   sitting in a repo (`docs/`, `research/`, conventions) with **zero editing**
+   via the v0.2.0 defaults layer (`title_from_h1`, `source_filter`,
+   `<h1>` injection) — see SanskritLexicography.
+4. **AI / agent memory browser** *(next — see roadmap)* — turn a commit-heavy
+   repo's accumulated Markdown memory (handoffs, `.ai_state.md`, `FINDINGS.md`,
+   `ROADMAP*.md`, decision logs) into a **searchable, cross-linked site** a
+   fresh agent session can navigate instead of grepping — the institutional
+   memory of a long-running project, made addressable.
+
+## Roadmap
+
+Waves 1–3 (extract → migrate ORS-FAQ → pilot four consumers) are done; the
+defaults layer (v0.2.0) proved arbitrary docs-per-repo publishing with zero
+edits. The next direction is **AI-memory sites for commit-heavy repos**:
+
+- **Multi-root ingest** — one site from *several* source dirs of an existing
+  repo (`handoffs/`, `docs/`, root `*.md`) without copying files into a
+  `wiki/`, so the published memory tracks the repo as it grows.
+- **Recency & provenance** — surface each note's last-commit date and author
+  from `git log` (sort "what changed lately" first); an agent asking "what's
+  the current state?" lands on the freshest decisions.
+- **Auto-linking** — resolve bare `H###` / issue / doc references into
+  cross-links so the handoff graph becomes navigable, not just a file list.
+- **Backlinks & a memory index** — per-note "referenced by" plus a generated
+  home that groups by status (in-work / decided / archived), mirroring the
+  GTD/handoff-registry pattern.
+- **Full-text search over bodies** (today's index is title/alias-scoped) — an
+  agent's "have we hit this before?" query needs the body, not just titles.
+- **CI freshness gate** — a reusable action that rebuilds the memory site on
+  every push so it never drifts from the repo (the staleness-guard pattern the
+  pilots already use, packaged).
+
+Open questions steering this are in the roadmap doc:
+[ROADMAP_ZETTELKASTENWIKI_2026.md](https://github.com/gasyoun/ORS-FAQ/blob/main/docs/ROADMAP_ZETTELKASTENWIKI_2026.md).
 
 ## Development
 
