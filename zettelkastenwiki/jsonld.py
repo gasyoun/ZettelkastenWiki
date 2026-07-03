@@ -23,11 +23,12 @@ def breadcrumb_jsonld(note: Note, config: SiteConfig) -> dict:
     """Two-level BreadcrumbList: site name › note title. Kept to 2 levels —
     without per-group landing pages a group level would just repeat the home
     URL (a duplicate-node trail crawlers may discard)."""
+    home_name = getattr(config, "breadcrumb_home_name", "") or config.site_name
     return {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         "itemListElement": [
-            {"@type": "ListItem", "position": 1, "name": config.site_name, "item": f"{config.base_url}/"},
+            {"@type": "ListItem", "position": 1, "name": home_name, "item": f"{config.base_url}/"},
             {"@type": "ListItem", "position": 2, "name": note.title, "item": note.canonical_url},
         ],
     }

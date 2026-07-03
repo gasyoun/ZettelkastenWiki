@@ -155,6 +155,8 @@ class SiteConfig:
     #: "footer" and "home_label" keys for the og module.
     og_group_labels: dict = field(default_factory=dict)
     og_options: dict = field(default_factory=dict)
+    #: Home crumb name in BreadcrumbList JSON-LD ("" → site_name).
+    breadcrumb_home_name: str = ""
     #: output subdir name → source directory, copied verbatim into the build.
     static_assets: dict = field(default_factory=dict)
     #: Emit an .htaccess disabling rewrites (WordPress-subfolder hosting).

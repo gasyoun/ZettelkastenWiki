@@ -121,27 +121,38 @@ def render_home(output_dir: Path, notes: list, config: SiteConfig) -> None:
         notes, config
     )
 
-    extra_jsonld = []
-    if config.hooks.home_extra_jsonld is not None:
-        extra_jsonld = config.hooks.home_extra_jsonld(notes=notes, config=config) or []
+    # When the home_extra_jsonld hook is present, its returned list is used
+    # EXACTLY (order matters byte-for-byte for parity migrations); otherwise a
+    # default WebSite+SearchAction block is emitted.
     main_jsonld = None
     if config.hooks.home_main_jsonld is not None:
         main_jsonld = config.hooks.home_main_jsonld(notes=notes, config=config)
-    website_jsonld = {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": config.site_name,
-        "url": f"{config.base_url}/",
-        "inLanguage": config.language,
-        "potentialAction": {
-            "@type": "SearchAction",
-            "target": {
-                "@type": "EntryPoint",
-                "urlTemplate": f"{config.base_url}/?q={{search_term_string}}",
-            },
-            "query-input": "required name=search_term_string",
-        },
-    }
+    if config.hooks.home_extra_jsonld is not None:
+        extra_jsonld = config.hooks.home_extra_jsonld(notes=notes, config=config) or []
+    else:
+        extra_jsonld = [
+            {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": config.site_name,
+                "url": f"{config.base_url}/",
+                "inLanguage": config.language,
+                "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": {
+                        "@type": "EntryPoint",
+                        "urlTemplate": f"{config.base_url}/?q={{search_term_string}}",
+                    },
+                    "query-input": "required name=search_term_string",
+                },
+            }
+        ]
+
+    nav = None
+    if config.hooks.nav_override is not None:
+        nav = config.hooks.nav_override(note=None, notes=notes, config=config)
+    if nav is None:
+        nav = render_nav(notes, config)
 
     html_text = page_shell(
         config=config,
@@ -149,7 +160,7 @@ def render_home(output_dir: Path, notes: list, config: SiteConfig) -> None:
         description=config.home_description or f"{config.site_name} — {len(notes)} pages",
         canonical_url=f"{config.base_url}/",
         body=body,
-        nav=render_nav(notes, config),
+        nav=nav,
         og_image=config.home_og_image or f"{config.base_url}/og/index.png",
         og_type="website",
         json_ld=main_jsonld
@@ -160,7 +171,7 @@ def render_home(output_dir: Path, notes: list, config: SiteConfig) -> None:
             "url": f"{config.base_url}/",
             "inLanguage": config.language,
         },
-        extra_jsonld=[website_jsonld, *extra_jsonld],
+        extra_jsonld=extra_jsonld,
     )
     write_text(output_dir / "index.html", html_text)
 
