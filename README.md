@@ -86,7 +86,7 @@ Full roadmap:
 | [ORS-FAQ](https://github.com/gasyoun/ORS-FAQ) → [samskrtam.ru/faq](https://samskrtam.ru/faq/) | source of the extraction | ✅ **live** — migrated behind a golden-diff byte-parity gate (`publish.py` 3,074→1,812 lines); 168-test suite green |
 | [kosha](https://github.com/gasyoun/kosha) → [gasyoun.github.io/kosha/docs-site](https://gasyoun.github.io/kosha/docs-site/) | greenfield | ✅ **live** — 5 notes + ~50-line config on the existing legacy Pages |
 | SamudraManthanam → [samskrtam.ru/corpus-faq](https://samskrtam.ru/corpus-faq/) | same hosting | ✅ **live** — 6 RU notes; second FTP site on the shared deploy path |
-| [SanskritLexicography](https://github.com/gasyoun/SanskritLexicography) research site | consolidation | 🔵 [PR #107](https://github.com/gasyoun/SanskritLexicography/pull/107) — 10 scattered convention docs → one site, **zero per-file edits** (v0.2.0 defaults layer) |
+| [SanskritLexicography](https://github.com/gasyoun/SanskritLexicography) research site | consolidation | ✅ **merged** ([PR #107](https://github.com/gasyoun/SanskritLexicography/pull/107)) — 10 scattered convention docs → one site, **zero per-file edits** (v0.2.0 defaults layer) |
 | [MWS](https://github.com/sanskrit-lexicon/MWS) | docs-per-repo probe | ✅ **probed** → drove the v0.2.0 defaults layer; no upstream PR (org batched-PR cadence) |
 
 ## Use cases
