@@ -88,7 +88,7 @@ Full roadmap:
 | SamudraManthanam → [samskrtam.ru/corpus-faq](https://samskrtam.ru/corpus-faq/) | same hosting | ✅ **live** — 6 RU notes; second FTP site on the shared deploy path |
 | [SanskritLexicography](https://github.com/gasyoun/SanskritLexicography) research site | consolidation | ✅ **merged** ([PR #107](https://github.com/gasyoun/SanskritLexicography/pull/107)) — 10 scattered convention docs → one site, **zero per-file edits** (v0.2.0 defaults layer) |
 | [MWS](https://github.com/sanskrit-lexicon/MWS) | docs-per-repo probe | ✅ **probed** → drove the v0.2.0 defaults layer; no upstream PR (org batched-PR cadence) |
-| Uprava (private) | AI-memory site | ✅ **v0.3.0 pilot** — 124-note searchable memory (root docs + handoffs + archive) from the live repo via multi-root ingest, full-text body search, git recency, backlinks (107 pages), H### auto-linking (262 prose links) & a status-index home (Hub/In-work/Queued/Done/Archived); built locally, never published |
+| Uprava (private) | AI-memory site | ✅ **v0.3.0 pilot, extended Wave-6 (04-07-2026)** — 124-note searchable memory (root docs + handoffs + archive) from the live repo via multi-root ingest, full-text body search, git recency, backlinks (107 pages), H### auto-linking (262 prose links) & a status-index home (Hub/In-work/Queued/Done/Archived); **Wave-6** added a `repos` group: one consolidated note per recently-active (7-day) sibling repo, staged from that repo's recovered `.ai_state.md` history + commit log + org-memory mentions (61 repos as of 04-07-2026, via `tools/build_repo_memory_notes.py`); built locally, never published |
 
 ## Use cases
 
