@@ -13,6 +13,41 @@ existing consumers never change behavior on upgrade:
 | 0.1.1–0.1.2 | Parity-migration extension points | 2 |
 | 0.1.0 | Initial extraction of the ORS-FAQ generator | 1 |
 
+## Audit fixes — 2026-07-03
+
+Implemented the repository-audit follow-ups. Validation:
+`python -m pytest -q` (58 passed) and
+`python example/build.py $env:TEMP\zkwiki-audit-example`.
+
+- Recursive ingest now preserves nested source identity in `Note.rel_path`
+  (`group/sub/path.md`) while keeping published URLs slug-based; stem-only
+  wikilinks fall back only when the stem is unique.
+- Quiz restart handlers no longer interpolate raw `QuizSpec.quiz_id` into
+  JavaScript identifiers; non-identifier IDs are sanitized for the window
+  handler while DOM IDs retain the escaped original.
+- `publish()` now raises `ValueError` before wiping `wiki_root` or one of its
+  parent directories.
+
+## Audit notes — 2026-07-03
+
+Repository audit completed with the full test suite and example build green:
+`python -m pytest -q` (52 passed) and
+`python example/build.py $env:TEMP\zkwiki-audit-example`.
+
+Follow-up items found:
+
+- Recursive ingest identity: `load_catalog()` currently records recursive files
+  as `"{group}/{path.name}"`, so duplicate basenames in nested directories share
+  one logical `rel_path` even though slugs are auto-suffixed. This can confuse
+  wikilink/backlink resolution.
+- Quiz ID hardening: `QuizSpec.quiz_id` is escaped for HTML attributes but is
+  also inserted into JavaScript identifiers (`window.zkqRestart_{qid}`); IDs
+  such as `bad-id` render invalid JavaScript. Validate IDs or derive a safe JS
+  symbol separately.
+- Publish safety: `publish()` wipes an existing output directory with
+  `shutil.rmtree()`. Add guardrails against accidentally targeting the source
+  tree, repo root, or a parent directory.
+
 ## [0.6.0] — 2026-07-03
 
 **Status-grouped memory-index home** (Wave-5; opt-in, default off).
@@ -117,7 +152,7 @@ migration; all additive, no behavior change for existing configs):
 
 Initial extraction from the [ORS-FAQ](https://github.com/gasyoun/ORS-FAQ)
 generator (`publish.py` 3,074 lines + `wiki_catalog.py`), per
-[H077](https://github.com/gasyoun/Uprava/blob/main/handoffs/H077_zettelkastenwiki_phase1_extraction.md).
+[H077](https://github.com/gasyoun/Uprava/blob/main/handoffs/H077-Fable_ORS-FAQ_zettelkastenwiki_phase1_extraction_03.07.26.md).
 
 - Core: configurable-groups catalog, Markdown + `[[wikilink]]` rendering,
   page shell with render hooks, nav, client-side search, sitemap, robots,
