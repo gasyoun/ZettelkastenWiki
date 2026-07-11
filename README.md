@@ -1,6 +1,6 @@
 # ZettelkastenWiki
 
-_Created: 03-07-2026 · Last updated: 03-07-2026_
+_Created: 03-07-2026 · Last updated: 11-07-2026_
 
 Static knowledge-site generator for Zettelkasten-style Markdown wikis:
 resolving `[[wikilinks]]`, SEO meta, JSON-LD structured data, reciprocal
@@ -115,8 +115,9 @@ Full roadmap:
    - **status-index home** — a GTD-style bucketed landing (in-work / done /
      archived) with counts.
 
-   Proven on a **private 126-note [Uprava](https://github.com/gasyoun/Uprava)
-   memory site** (built locally, never published): full-text search over every
+   Proven on a **private [Uprava](https://github.com/gasyoun/Uprava)
+   memory site** (built locally, never published) — ~126 notes as of
+   04-07-2026, and growing with the repo: full-text search over every
    body, 107 pages of backlinks, 262 auto-linked `H###` references.
 
 ## Roadmap
@@ -126,7 +127,8 @@ defaults layer (v0.2.0) proved arbitrary docs-per-repo publishing with zero
 edits. **Wave 5 shipped (v0.3.0):** multi-root in-place ingest, full-text body
 search, single-`<h1>` enforcement, git recency, backlinks, `H###`
 auto-linking and a status-grouped index home — all proven on a private
-126-note Uprava memory site. **AI-memory building blocks (v0.3.0–v0.6.0):**
+Uprava memory site (~126 notes as of 04-07-2026, and growing).
+**AI-memory building blocks (v0.3.0–v0.6.0):**
 
 - ✅ **Multi-root ingest** (v0.3.0) — one site from *several* source dirs
   (`handoffs/`, `docs/`, root `*.md`) with no copying, via
