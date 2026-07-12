@@ -154,8 +154,10 @@ def load_catalog(config: SiteConfig) -> list:
             if config.source_filter is not None:
                 body = config.source_filter(body)
             # rel_path stays group-scoped so URLs are /group/slug/ regardless
-            # of where the source file physically lives.
-            rel_path = f"{spec.name}/{path.name}"
+            # of where the source file physically lives, but recursive groups
+            # keep nested identity for wikilinks/backlinks.
+            source_rel = path.relative_to(group_dir).as_posix()
+            rel_path = f"{spec.name}/{source_rel}"
             slug = note_slug(rel_path, frontmatter, config)
             if slug in seen_slugs:
                 # Two source files collided on a slug (e.g. same stem in a

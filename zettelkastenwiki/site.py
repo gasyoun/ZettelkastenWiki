@@ -25,6 +25,7 @@ from .shell import page_shell
 def publish(config: SiteConfig, output_dir: "str | Path", render_og: "bool | None" = None) -> Path:
     """Build the whole site into ``output_dir`` (wiped first). Returns it."""
     output_path = Path(output_dir)
+    _ensure_safe_output_path(output_path, config)
     if output_path.exists():
         shutil.rmtree(output_path)
     output_path.mkdir(parents=True, exist_ok=True)
@@ -57,6 +58,17 @@ def publish(config: SiteConfig, output_dir: "str | Path", render_og: "bool | Non
     if config.emit_htaccess:
         write_htaccess(output_path, config)
     return output_path
+
+
+def _ensure_safe_output_path(output_path: Path, config: SiteConfig) -> None:
+    """Refuse output paths that would wipe the source tree or its parents."""
+    root = Path(config.wiki_root).resolve()
+    out = output_path.resolve()
+    if out == root or root.is_relative_to(out):
+        raise ValueError(
+            "publish() refuses to wipe the source tree or its parent; "
+            f"choose an output directory outside {root}"
+        )
 
 
 # --- home page --------------------------------------------------------------

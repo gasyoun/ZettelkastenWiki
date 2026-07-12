@@ -141,7 +141,17 @@ def resolve_wiki_link(target: str, current: Note, notes: list, config: SiteConfi
     key = key.removeprefix("./").strip("/")
 
     by_rel = {note.rel_path.removesuffix(".md"): note for note in notes}
-    by_stem = {Path(note.rel_path).stem: note for note in notes}
+    by_stem = {}
+    ambiguous_stems = set()
+    for item in notes:
+        stem = Path(item.rel_path).stem
+        if stem in ambiguous_stems:
+            continue
+        if stem in by_stem:
+            ambiguous_stems.add(stem)
+            by_stem.pop(stem, None)
+            continue
+        by_stem[stem] = item
     same_group = by_rel.get(f"{current.group}/{key}")
     if same_group:
         return same_group.url_path, same_group

@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from zettelkastenwiki import GroupSpec, SiteConfig, load_catalog, publish
+from zettelkastenwiki import GroupSpec, SiteConfig, load_catalog, publish, resolve_wiki_link
 from zettelkastenwiki import testing
 
 
@@ -105,7 +105,7 @@ def test_extra_h1_demoted(tmp_path):
 
 def test_recursive_dedupes_slug_collisions(tmp_path):
     (tmp_path / "a").mkdir()
-    (tmp_path / "a" / "note.md").write_text("# One", encoding="utf-8")
+    (tmp_path / "a" / "note.md").write_text("# One\n\nSee [[sub/note]].", encoding="utf-8")
     sub = tmp_path / "a" / "sub"
     sub.mkdir()
     (sub / "note.md").write_text("# Two", encoding="utf-8")
@@ -115,8 +115,30 @@ def test_recursive_dedupes_slug_collisions(tmp_path):
         wiki_root=tmp_path,
         groups=(GroupSpec(name="a", source_dir="a", recursive=True),),
     )
-    slugs = sorted(n.slug for n in load_catalog(cfg))
+    notes = load_catalog(cfg)
+    slugs = sorted(n.slug for n in notes)
     assert slugs == ["note", "note-2"], slugs
+    rels = sorted(n.rel_path for n in notes)
+    assert rels == ["a/note.md", "a/sub/note.md"]
+    root_note = next(n for n in notes if n.rel_path == "a/note.md")
+    url, resolved = resolve_wiki_link("sub/note", root_note, notes, cfg)
+    assert url == "/a/note-2/"
+    assert resolved is not None and resolved.rel_path == "a/sub/note.md"
+    url, resolved = resolve_wiki_link("note", root_note, notes, cfg)
+    assert url == "/a/note/"
+    assert resolved is not None and resolved.rel_path == "a/note.md"
+
+
+def test_non_recursive_rel_path_stays_top_level(tmp_path):
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "top.md").write_text("# Top", encoding="utf-8")
+    cfg = SiteConfig(
+        base_url="https://example.org",
+        site_name="M",
+        wiki_root=tmp_path,
+        groups=(GroupSpec(name="docs"),),
+    )
+    assert load_catalog(cfg)[0].rel_path == "docs/top.md"
 
 
 def test_features_off_by_default():

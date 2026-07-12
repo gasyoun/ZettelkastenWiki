@@ -27,6 +27,36 @@ def test_restart_handler_is_window_global():
     assert "window.zkqRestart_setup = function" in html_text
 
 
+def test_restart_handler_sanitizes_non_identifier_quiz_id():
+    spec = QuizSpec(
+        quiz_id="bad-id",
+        heading="H",
+        lead="L",
+        questions=(QuizQuestion(key="q", prompt="?", options=(QuizOption(label="go", result="r"),)),),
+        results={"r": QuizResult(title="R")},
+    )
+    html_text = render_quiz(spec, CONFIG)
+    assert 'id="quiz-bad-id"' in html_text
+    assert "window.zkqRestart_bad_id(event)" in html_text
+    assert "window.zkqRestart_bad_id = function" in html_text
+    assert "window.zkqRestart_bad-id" not in html_text
+
+
+def test_quiz_id_is_safe_in_attributes_and_script_strings():
+    spec = QuizSpec(
+        quiz_id='x";</script><b>',
+        heading="H",
+        lead="L",
+        questions=(QuizQuestion(key="q", prompt="?", options=(QuizOption(label="go", result="r"),)),),
+        results={"r": QuizResult(title="R")},
+    )
+    html_text = render_quiz(spec, CONFIG)
+    assert 'id="quiz-x&quot;;&lt;/script&gt;&lt;b&gt;"' in html_text
+    assert 'var ID = "zkq-x\\";\\u003c/script\\u003e\\u003cb\\u003e";' in html_text
+    assert "</script><b>" not in html_text
+    assert "window.zkqRestart_x____script__b_" in html_text
+
+
 def test_scored_quiz_payload():
     spec = QuizSpec(
         quiz_id="facts",

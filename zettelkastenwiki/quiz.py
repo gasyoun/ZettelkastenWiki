@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import html
 import json
+import re
 from dataclasses import dataclass, field
 
 from .catalog import escape_attr
@@ -115,10 +116,25 @@ def _spec_payload(spec: QuizSpec) -> dict:
     }
 
 
+def _script_json(value: str) -> str:
+    return json.dumps(value, ensure_ascii=False).replace("<", "\\u003c").replace(">", "\\u003e")
+
+
+def _restart_handler(quiz_id: str) -> tuple[str, str]:
+    name = "zkqRestart_" + re.sub(r"\W", "_", quiz_id, flags=re.ASCII)
+    if not re.match(r"^[A-Za-z_$]", name):
+        name = "zkqRestart_" + name
+    if re.match(r"^[A-Za-z_$][A-Za-z0-9_$]*$", name):
+        return f"window.{name}", name
+    return f"window[{_script_json(name)}]", name
+
+
 def render_quiz(spec: QuizSpec, config: SiteConfig) -> str:
     """Render one quiz section (markup + engine JS) from its spec."""
     strings = config.strings
     qid = spec.quiz_id
+    js_id = _script_json(f"zkq-{qid}")
+    restart_ref, _restart_name = _restart_handler(qid)
     payload = json.dumps(_spec_payload(spec), ensure_ascii=False).replace("<", "\\u003c").replace(
         ">", "\\u003e"
     )
@@ -132,12 +148,12 @@ def render_quiz(spec: QuizSpec, config: SiteConfig) -> str:
   <h3 class="zkq-question" id="zkq-{escape_attr(qid)}-q"></h3>
   <div class="zkq-options" id="zkq-{escape_attr(qid)}-options"></div>
   <div id="zkq-{escape_attr(qid)}-result"></div>
-  <p><a href="#" id="zkq-{escape_attr(qid)}-restart" style="display:none;" onclick="return window.zkqRestart_{qid}(event)">{html.escape(strings.quiz_restart)}</a></p>
+  <p><a href="#" id="zkq-{escape_attr(qid)}-restart" style="display:none;" onclick="return {escape_attr(restart_ref)}(event)">{html.escape(strings.quiz_restart)}</a></p>
 </div>
 <script>
 (function () {{
   var SPEC = {payload};
-  var ID = "zkq-{qid}";
+  var ID = {js_id};
   var elQ = document.getElementById(ID + "-q");
   var elOpts = document.getElementById(ID + "-options");
   var elRes = document.getElementById(ID + "-result");
@@ -244,7 +260,7 @@ def render_quiz(spec: QuizSpec, config: SiteConfig) -> str:
       elOpts.appendChild(b);
     }});
   }}
-  window.zkqRestart_{qid} = function (e) {{
+  {restart_ref} = function (e) {{
     if (e) e.preventDefault();
     state = {{ answers: {{}}, step: 0, score: 0 }};
     elRestart.style.display = "none";
