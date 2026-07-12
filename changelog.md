@@ -152,7 +152,7 @@ migration; all additive, no behavior change for existing configs):
 
 Initial extraction from the [ORS-FAQ](https://github.com/gasyoun/ORS-FAQ)
 generator (`publish.py` 3,074 lines + `wiki_catalog.py`), per
-[H077](https://github.com/gasyoun/Uprava/blob/main/handoffs/H077-Fable_ORS-FAQ_zettelkastenwiki_phase1_extraction_03.07.26.md).
+[H077](https://github.com/gasyoun/Uprava/blob/main/handoffs/archive/H077-Fable_ORS-FAQ_zettelkastenwiki_phase1_extraction_03.07.26.md).
 
 - Core: configurable-groups catalog, Markdown + `[[wikilink]]` rendering,
   page shell with render hooks, nav, client-side search, sitemap, robots,
