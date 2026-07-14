@@ -162,6 +162,6 @@ python example/build.py /tmp/example-site
 ```
 
 MIT. Provenance: extracted 03-07-2026 by Fable 5 (`claude-fable-5`) per
-[H077](https://github.com/gasyoun/Uprava/blob/main/handoffs/H077-Fable_ORS-FAQ_zettelkastenwiki_phase1_extraction_03.07.26.md).
+[H077](https://github.com/gasyoun/Uprava/blob/main/handoffs/archive/H077-Fable_ORS-FAQ_zettelkastenwiki_phase1_extraction_03.07.26.md).
 
 _Dr. Mārcis Gasūns_
