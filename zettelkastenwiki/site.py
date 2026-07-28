@@ -537,4 +537,7 @@ def write_htaccess(output_dir: Path, config: "SiteConfig | None" = None) -> None
 
 def write_text(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text, encoding="utf-8")
+    # newline="\n" pins LF regardless of build host — Path.write_text's default
+    # universal-newline translation otherwise makes generated-output hashes a
+    # property of the platform (CRLF on Windows, LF elsewhere).
+    path.write_text(text, encoding="utf-8", newline="\n")
