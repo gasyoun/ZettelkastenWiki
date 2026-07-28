@@ -5,6 +5,7 @@ existing consumers never change behavior on upgrade:
 
 | Version | Theme | Wave |
 |---|---|---|
+| 0.6.1 | `write_text()` CRLF/LF hash-determinism fix | 5 |
 | 0.6.0 | Status-grouped memory-index home | 5 |
 | 0.5.0 | Bare-token (`H###`) auto-linking | 5 |
 | 0.4.0 | Git recency ranking + backlinks | 5 |
@@ -12,6 +13,22 @@ existing consumers never change behavior on upgrade:
 | 0.2.0 | Defaults layer for frontmatter-less Markdown | 4 |
 | 0.1.1–0.1.2 | Parity-migration extension points | 2 |
 | 0.1.0 | Initial extraction of the ORS-FAQ generator | 1 |
+
+## 0.6.1 — 2026-07-28
+
+Fixes an H1768/H1769-class defect: `site.py`'s single shared `write_text()`
+writer used `Path.write_text()` with no `newline=` guard, so
+`Path.write_text`'s universal-newline translation made every generated
+HTML/JSON/`.htaccess` byte-for-byte host-dependent (CRLF on Windows, LF
+elsewhere). Any consumer pinning a sha256 of the generated output (e.g.
+`ors_faq/tools/parity_manifest.py`'s cross-machine parity comparison) would
+see the hash change with the build host, not the content.
+
+- `write_text()` now writes with `newline="\n"`, pinning LF regardless of
+  build host. No consumer-facing hash *semantics* changed — only the
+  previously-nondeterministic bytes are now deterministic.
+- Added `tests/test_write_text_lf_determinism.py`, a byte-mode (no
+  `encoding=`) regression test proven to fail pre-fix on Windows.
 
 ## Audit fixes — 2026-07-03
 
