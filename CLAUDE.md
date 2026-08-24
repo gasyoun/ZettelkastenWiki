@@ -37,7 +37,7 @@ PyPI distribution).
 - Core stays stdlib-only; anything needing a dependency is an extra.
 - Every behavior change lands with a test; run `python -m pytest tests -q`.
 - Release: bump `pyproject.toml` + `zettelkastenwiki/__init__.__version__`,
-  update `changelog.md`, tag `vX.Y.Z` (annotated) — the release workflow
+  update `CHANGELOG.md`, tag `vX.Y.Z` (annotated) — the release workflow
   publishes via PyPI Trusted Publishing.
 - Windows sessions: UTF-8 discipline (`sys.stdout.reconfigure(encoding="utf-8")`
   in scripts, `encoding="utf-8"` on file I/O, no BOM).
