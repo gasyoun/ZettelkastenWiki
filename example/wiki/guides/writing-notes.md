@@ -1,3 +1,5 @@
+_Created: 03-07-2026 · Last updated: 05-09-2026_
+
 ---
 title: Writing notes
 slug: writing-notes
@@ -22,3 +24,5 @@ quickstart]].
 
 > Frontmatter drives the SEO layer: `seo_title`, `seo_description` (unique,
 > ≤160 chars — the test harness enforces this), `aliases` for search recall.
+
+_Dr. Mārcis Gasūns_

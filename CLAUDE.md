@@ -1,3 +1,5 @@
+_Created: 03-07-2026 · Last updated: 05-09-2026_
+
 # CLAUDE.md
 
 Guidance for Claude Code sessions in this repository.
@@ -41,3 +43,5 @@ PyPI distribution).
   publishes via PyPI Trusted Publishing.
 - Windows sessions: UTF-8 discipline (`sys.stdout.reconfigure(encoding="utf-8")`
   in scripts, `encoding="utf-8"` on file I/O, no BOM).
+
+_Dr. Mārcis Gasūns_

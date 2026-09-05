@@ -1,3 +1,5 @@
+_Created: 03-07-2026 · Last updated: 05-09-2026_
+
 ---
 title: Getting started
 slug: getting-started
@@ -28,3 +30,5 @@ syntax, or the [[../faq/what-is-this]] answer for the elevator pitch.
 - Clean folder URLs per note
 - Client-side search over titles and aliases
 - A sitemap, robots.txt and JSON-LD out of the box
+
+_Dr. Mārcis Gasūns_

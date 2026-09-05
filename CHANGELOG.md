@@ -1,3 +1,5 @@
+_Created: 03-07-2026 · Last updated: 05-09-2026_
+
 # Changelog
 
 At a glance — every feature after v0.1.0 is **opt-in and default-off**, so
@@ -188,3 +190,5 @@ generator (`publish.py` 3,074 lines + `wiki_catalog.py`), per
   hooked quiz) built and smoked in CI; 23-test suite.
 - Release workflow via PyPI Trusted Publishing (first publish gates on the
   owner's PyPI publisher setup).
+
+_Dr. Mārcis Gasūns_

@@ -1,3 +1,5 @@
+_Created: 03-07-2026 · Last updated: 05-09-2026_
+
 ---
 title: Which setup fits you?
 slug: quiz-demo
@@ -15,3 +17,5 @@ last_updated: 2026-07-03
 This page carries the demo quiz attached via the `note_extras` hook — one
 declarative `QuizSpec` instead of a hand-written script block. See
 [[what-is-this]] for context.
+
+_Dr. Mārcis Gasūns_

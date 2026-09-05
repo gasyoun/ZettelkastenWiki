@@ -1,3 +1,5 @@
+_Created: 03-07-2026 · Last updated: 05-09-2026_
+
 ---
 title: What is ZettelkastenWiki?
 slug: what-is-this
@@ -19,3 +21,5 @@ JSON-LD structured data and a sitemap.
 It was extracted from the ORS-FAQ generator that runs a production FAQ site,
 together with the invariant test suite that guards it. Start with
 [[../guides/getting-started]].
+
+_Dr. Mārcis Gasūns_

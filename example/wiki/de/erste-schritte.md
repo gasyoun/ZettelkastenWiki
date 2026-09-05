@@ -1,3 +1,5 @@
+_Created: 03-07-2026 · Last updated: 05-09-2026_
+
 ---
 title: Erste Schritte
 slug: erste-schritte
@@ -14,3 +16,5 @@ alt_en: /guides/getting-started/
 
 Die deutsche Gegenseite der englischen Anleitung — sie demonstriert das
 gegenseitige hreflang-Paar, das die Testsuite erzwingt.
+
+_Dr. Mārcis Gasūns_
