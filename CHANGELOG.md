@@ -16,6 +16,12 @@ existing consumers never change behavior on upgrade:
 | 0.1.1–0.1.2 | Parity-migration extension points | 2 |
 | 0.1.0 | Initial extraction of the ORS-FAQ generator | 1 |
 
+## [Unreleased]
+
+### Added
+
+- Added a root `AGENTS.md` agent-entrypoint stub (H4634): names itself the agent entrypoint, links [CLAUDE.md](CLAUDE.md), points at the [Uprava org standard](https://github.com/gasyoun/Uprava/blob/main/AGENTS.md).
+
 ## 0.6.1 — 2026-07-28
 
 Fixes an H1768/H1769-class defect: `site.py`'s single shared `write_text()`
