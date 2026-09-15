@@ -1,4 +1,4 @@
-_Created: 03-07-2026 · Last updated: 05-09-2026_
+_Created: 03-07-2026 · Last updated: 15-09-2026_
 
 # CLAUDE.md
 
@@ -43,5 +43,9 @@ PyPI distribution).
   publishes via PyPI Trusted Publishing.
 - Windows sessions: UTF-8 discipline (`sys.stdout.reconfigure(encoding="utf-8")`
   in scripts, `encoding="utf-8"` on file I/O, no BOM).
+
+## Memory store
+
+This repo keeps a committed memory store at [`.claude/projects/ZettelkastenWiki/memory/`](https://github.com/gasyoun/ZettelkastenWiki/tree/main/.claude/projects/ZettelkastenWiki/memory) per the org Memory-routing rule ([`/danger-memory`](https://github.com/gasyoun/claude-config/blob/main/commands/danger-memory.md)) — write dangerous/durable facts there and index each in its `MEMORY.md` (H4547).
 
 _Dr. Mārcis Gasūns_
