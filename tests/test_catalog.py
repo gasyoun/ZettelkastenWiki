@@ -55,3 +55,37 @@ def test_split_cta_and_truncate():
     assert split_cta("no pipe") is None
     assert truncate_text("short", 10) == "short"
     assert truncate_text("a long sentence that overflows", 15).endswith("…")
+
+
+def test_parse_frontmatter_after_house_byline():
+    """Org-wide byline passes prepend `_Created: …_` above the delimiter;
+    frontmatter after such a short prologue still parses (16-09 regression)."""
+    text = (
+        "_Created: 03-07-2026 · Last updated: 05-09-2026_\n"
+        "\n"
+        "---\n"
+        "title: T\n"
+        "alt_de: /de/x/\n"
+        "---\n"
+        "Body"
+    )
+    data, body = parse_frontmatter(text)
+    assert data["title"] == "T"
+    assert data["alt_de"] == "/de/x/"
+    assert body == "Body"
+
+
+def test_prose_before_thematic_break_is_not_frontmatter():
+    """Prose followed by a `---` thematic break must never become
+    frontmatter — only the house-byline prologue is tolerated."""
+    text = (
+        "Some opening prose sentence.\n"
+        "\n"
+        "---\n"
+        "not: frontmatter\n"
+        "---\n"
+        "Body\n"
+    )
+    data, body = parse_frontmatter(text)
+    assert data == {}
+    assert body.startswith("Some opening prose sentence.")
