@@ -72,12 +72,47 @@ def split_cta(value: str) -> "tuple[str, str] | None":
 
 def parse_frontmatter(text: str) -> tuple:
     match = re.match(r"^---\n(.*?)\n---\n?", text, re.DOTALL)
-    if not match:
-        return {}, text
+    if match:
+        return _parse_block(match.group(1)), text[match.end():]
 
+    # Tolerate a short prologue (blank lines / house byline like
+    # "_Created: … · Last updated: …_") before the opening delimiter —
+    # mechanical byline passes prepend it org-wide. The opening `---`
+    # must appear within the first 6 lines and the block must contain at
+    # least one `key:` line, so a `---` thematic break in ordinary prose
+    # is never mistaken for frontmatter.
+    lines = text.split("\n")
+    opener = None
+    for idx, ln in enumerate(lines[:6]):
+        if ln.strip() == "---":
+            opener = idx
+            break
+    if opener is None:
+        return {}, text
+    # Prologue tolerance: only a short house-byline block (≤2 non-empty
+    # lines shaped `_…_`, e.g. the org-wide "_Created: … · Last updated: …_"
+    # prepend) may precede the opening delimiter. Prose before a `---`
+    # thematic break is never promoted to frontmatter.
+    prologue = [ln for ln in lines[:opener] if ln.strip()]
+    if prologue and (len(prologue) > 2 or not all(
+            ln.startswith("_") and ln.endswith("_") for ln in prologue)):
+        return {}, text
+    block: list = []
+    close = None
+    for idx in range(opener + 1, len(lines)):
+        if lines[idx].strip() == "---":
+            close = idx
+            break
+        block.append(lines[idx])
+    if close is None or not block or not any(":" in ln for ln in block):
+        return {}, text
+    return _parse_block("\n".join(block)), "\n".join(lines[close + 1:]).lstrip("\n")
+
+
+def _parse_block(block_text: str) -> dict:
     data: dict = {}
     current_key: str | None = None
-    for line in match.group(1).splitlines():
+    for line in block_text.splitlines():
         if current_key is not None and line.startswith("  ") and line.strip():
             child = line[2:]
             container = data[current_key]
@@ -104,7 +139,7 @@ def parse_frontmatter(text: str) -> tuple:
         else:
             data[key] = clean_scalar(raw_value)
 
-    return data, text[match.end():]
+    return data
 
 
 def clean_scalar(value: str):
